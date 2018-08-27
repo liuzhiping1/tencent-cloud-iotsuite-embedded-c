@@ -1,6 +1,6 @@
 # 常见错误解决及处理
 ## 详细定义
-[tc_iot_const.h](../include/common/tc_iot_const.h)
+[tc_iot_const.h](../include/common/tc_iot_const.h#L10)
 
 ## -101
 
