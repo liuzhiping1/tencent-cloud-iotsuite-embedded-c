@@ -12,7 +12,7 @@
 | name          | 字符串     | 可写       | 16             |
 
 
-3. 点击导出按钮，导出 iot-xxxxx.json 数据模板描述文档，将 iot-xxxxx.json 文档放到 examples/linux/light 目录下覆盖 iot-product.json 文件。
+3. 点击导出按钮，导出 iot-xxxxx.json 数据模板描述文档，将 iot-xxxxx.json 文档放到 examples/scenarios/light/ 目录下覆盖 iot-product.json 文件。
 4. 通过脚本自动生成 light 设备的逻辑框架及业务数据配置代码。
 
 ```shell
