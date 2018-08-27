@@ -1,6 +1,6 @@
 # 常见错误解决及处理
 ## 详细定义
-[tc_iot_const.h](https://tencentyun.github.io/tencent-cloud-iotsuite-embedded-c/sdk/tc__iot__const_8h.html)
+[tc_iot_const.h](../include/common/tc_iot_const.h)
 
 ## -101
 
