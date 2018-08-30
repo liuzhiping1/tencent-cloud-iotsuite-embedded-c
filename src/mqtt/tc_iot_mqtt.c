@@ -47,6 +47,7 @@ static void _on_new_message_data(tc_iot_message_data* md, MQTTString* topic,
 static int _handle_reconnect(tc_iot_mqtt_client* c) {
     int i = 0;
     int rc = 0;
+    tc_iot_mqtt_client_config  * p_client_config = NULL;
 
     IF_NULL_RETURN(c, TC_IOT_NULL_POINTER);
     if (!tc_iot_hal_timer_is_expired(&(c->reconnect_timer))) {
@@ -86,6 +87,15 @@ static int _handle_reconnect(tc_iot_mqtt_client* c) {
         return TC_IOT_SUCCESS;
     } else {
         TC_IOT_LOG_ERROR("attempt to reconnect failed, errCode: %d", rc);
+        p_client_config = c->p_client_config;
+        if (rc == TC_IOT_MQTT_CONNACK_NOT_AUTHORIZED && p_client_config) {
+            if (p_client_config->device_info.auth_mode == TC_IOT_MQTT_AUTH_DYNAMIC_SIGN) {
+                tc_iot_mqtt_refresh_dynamic_sign(tc_iot_hal_timestamp(NULL), tc_iot_hal_random(), &p_client_config->device_info, 0);
+                TC_IOT_LOG_TRACE("token refreshed: password=%s", p_client_config->device_info.password);
+            } else {
+                TC_IOT_LOG_ERROR("auto_mode=%d should refresh token before expired", p_client_config->device_info.auth_mode);
+            }
+        }
     }
 
     if (!(c->reconnect_timeout_ms)) {
@@ -226,6 +236,7 @@ int tc_iot_mqtt_init(tc_iot_mqtt_client* c,
     tc_iot_hal_timer_init(&c->reconnect_timer);
 
     c->client_init_time = tc_iot_hal_timestamp(NULL);
+    c->p_client_config = p_client_config;
 
     tc_iot_mqtt_set_state(c, CLIENT_INTIALIAZED);
     ret = c->ipstack.do_connect(&(c->ipstack), NULL, 0);
@@ -1198,7 +1209,7 @@ void tc_iot_mqtt_destroy(tc_iot_mqtt_client* c) {
     }
 }
 
-int tc_iot_mqtt_refresh_dynamic_sign(long timestamp, long nonce, tc_iot_device_info* p_device_info) {
+int tc_iot_mqtt_refresh_dynamic_sign(long timestamp, long nonce, tc_iot_device_info* p_device_info, long reserve) {
     char * password = p_device_info->password;
     char * product_id = p_device_info->product_id;
     char * client_id = p_device_info->client_id;

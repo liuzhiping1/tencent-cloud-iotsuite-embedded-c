@@ -161,13 +161,13 @@ struct _tc_iot_mqtt_client {
     tc_iot_timer reconnect_timer; /**< 重连定时器，用来判断是否需要发起新一轮重连尝试*/
     
     long         client_init_time;
+    void        *p_client_config;
 } ;
 
 typedef enum _tc_iot_device_auth_mode_e {
-    TC_IOT_MQTT_AUTH_NONE = 0,
-    TC_IOT_MQTT_AUTH_STATIC_PASS = 1, // 静态直连 deprecated
-    TC_IOT_MQTT_AUTH_DYNAMIC_TOKEN = 2, // 动态 Token
-    TC_IOT_MQTT_AUTH_DYNAMIC_SIGN = 3, // 动态签名
+    TC_IOT_MQTT_AUTH_STATIC_PASS = 0, // 静态直连 deprecated
+    TC_IOT_MQTT_AUTH_DYNAMIC_TOKEN = 1, // 动态 Token
+    TC_IOT_MQTT_AUTH_DYNAMIC_SIGN = 2, // 动态签名
 } tc_iot_device_auth_mode_e;
 
 /**
@@ -249,5 +249,6 @@ int tc_iot_mqtt_set_auto_reconnect(tc_iot_mqtt_client* client,
                                    char auto_reconnect);
 void tc_iot_init_mqtt_conn_data(MQTTPacket_connectData * conn_data);
 void tc_iot_mqtt_destroy(tc_iot_mqtt_client* c);
+int tc_iot_mqtt_refresh_dynamic_sign(long timestamp, long nonce, tc_iot_device_info* p_device_info, long reserve);
 
 #endif /* end of include guard */
