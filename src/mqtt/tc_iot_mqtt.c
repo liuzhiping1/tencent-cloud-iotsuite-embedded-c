@@ -432,7 +432,7 @@ int deliverMessage(tc_iot_mqtt_client* c, MQTTString* topicName,
     IF_NULL_RETURN(topicName, TC_IOT_NULL_POINTER);
     IF_NULL_RETURN(message, TC_IOT_NULL_POINTER);
 
-    left = ((int)(message->payload - (void *)c->readbuf) + (int)message->payloadlen - (int)c->readbuf_size);
+    left = ((int)((char *)(message->payload) - ((char *)c->readbuf)) + (int)message->payloadlen - (int)c->readbuf_size);
     if (left > 0) {
         TC_IOT_LOG_ERROR("%d size overflowed", left);
         error_code = TC_IOT_MQTT_OVERSIZE_PACKET_RECEIVED;
