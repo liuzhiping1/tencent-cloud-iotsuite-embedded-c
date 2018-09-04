@@ -252,7 +252,6 @@ int _process_desired( const char * doc_start, jsmntok_t * json_token, int tok_co
 
         memcpy(val_buf, val_start, val_len);
         val_buf[val_len] = '\0';
-        
 
         if (strcmp("param_bool", key_buf) == 0 ) {
             TC_IOT_BIT_SET(p_desired_bits, TC_IOT_PROP_param_bool);

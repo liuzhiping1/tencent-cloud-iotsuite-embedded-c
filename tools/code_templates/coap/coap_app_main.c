@@ -20,6 +20,7 @@ void _coap_con_default_handler(void * client, tc_iot_coap_message * message );
 
 
 tc_iot_coap_client g_coap_client;
+unsigned int g_coap_shadow_seq = 0;
 tc_iot_coap_client_config g_coap_config = {
     {
         /* device info*/
@@ -130,6 +131,7 @@ int do_coap_delete(tc_iot_coap_client * p_coap_client,
 
     tc_iot_json_writer_open(w, request, sizeof(request));
     tc_iot_json_writer_string(w ,"method", "delete");
+    tc_iot_json_writer_uint(w ,TC_IOT_SHADOW_SEQUENCE_FIELD, g_coap_shadow_seq);
     tc_iot_json_writer_object_begin(w ,"state");
     tc_iot_json_writer_object_begin(w ,"desired");
 /*${data_template.generate_coap_delete_code()}*/
@@ -214,7 +216,6 @@ int _process_desired( const char * doc_start, jsmntok_t * json_token, int tok_co
 
         memcpy(val_buf, val_start, val_len);
         val_buf[val_len] = '\0';
-        
 /*${data_template.generate_coap_process_code()}*/
 
         TC_IOT_LOG_ERROR("unknown desired field: %s=%s", key_buf, val_buf);
@@ -230,6 +231,8 @@ int check_and_process_desired(unsigned char * p_desired_bits, tc_iot_shadow_loca
     int field_index = 0;
     int ret = 0;
     int token_count = 0;
+    int seq = 0;
+    const char * pos = NULL;
 
     /* 有效性检查 */
     ret = tc_iot_json_parse(message, strlen(message), json_token, TC_IOT_ARRAY_LENGTH(json_token));
@@ -249,6 +252,26 @@ int check_and_process_desired(unsigned char * p_desired_bits, tc_iot_shadow_loca
         desired_start = message + json_token[field_index].start;
         desired_len = json_token[field_index].end - json_token[field_index].start;
         TC_IOT_LOG_TRACE("payload.state.desired found:%s", tc_iot_log_summary_string(desired_start, desired_len));
+
+        field_index = tc_iot_json_find_token(message, json_token, token_count, TC_IOT_SHADOW_SEQUENCE_FIELD, NULL, 0);
+        if (field_index > 0) {
+            pos = message + json_token[field_index].start;
+            seq = 0;
+            while (*pos >= '0' && *pos <= '9') {
+                seq = 10*seq + (*pos - '0');
+                /* TC_IOT_LOG_TRACE("pos=%c", *pos); */
+                pos++;
+            }
+            if (seq > 0) {
+                if (g_coap_shadow_seq > seq ) {
+                    TC_IOT_LOG_WARN("seq reversed: old=%u,new=%u ",g_coap_shadow_seq, seq);
+                }
+                g_coap_shadow_seq = seq;
+            }
+        } else {
+            TC_IOT_LOG_TRACE("no version field.");
+        }
+
         /* 根据控制台或者 APP 端的指令，设定设备状态 */
         if (desired_start) {
             ret = tc_iot_json_parse(desired_start, desired_len, json_token, token_count);
