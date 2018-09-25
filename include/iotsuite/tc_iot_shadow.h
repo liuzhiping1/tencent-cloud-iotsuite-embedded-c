@@ -129,7 +129,7 @@ int tc_iot_shadow_construct(tc_iot_shadow_client * p_shadow_client,
  *
  * @param p_shadow_client 设备影子对象
  */
-void tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
+int tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
 
 
 /**
@@ -271,6 +271,8 @@ const char * tc_iot_shadow_get_property_name(tc_iot_shadow_client * p_shadow_cli
 int tc_iot_shadow_get_property_type(tc_iot_shadow_client * p_shadow_client, int property_id);
 int tc_iot_shadow_get_property_offset(tc_iot_shadow_client * p_shadow_client, int property_id);
 int tc_iot_shadow_pending_session_count(tc_iot_shadow_client *c);
+int  _tc_iot_generate_session_id(char * session_id, int session_id_len, tc_iot_mqtt_client* c);
+tc_iot_shadow_session * tc_iot_fetch_session(tc_iot_shadow_client *c);
 
 int tc_iot_report_device_data(tc_iot_shadow_client* p_shadow_client);
 int tc_iot_confirm_devcie_data(tc_iot_shadow_client* p_shadow_client);
