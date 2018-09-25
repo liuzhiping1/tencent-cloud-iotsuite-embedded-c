@@ -30,9 +30,7 @@ tc_iot_shadow_local_data g_local_data = {
 tc_iot_device_info g_device_info = {
     /* device info*/
     TC_IOT_CONFIG_DEVICE_SECRET, TC_IOT_CONFIG_DEVICE_PRODUCT_ID,
-    TC_IOT_CONFIG_DEVICE_NAME, TC_IOT_CONFIG_DEVICE_CLIENT_ID,
-    TC_IOT_CONFIG_DEVICE_USER_NAME, TC_IOT_CONFIG_DEVICE_PASSWORD, 0,
-    TC_IOT_CONFIG_AUTH_MODE, TC_IOT_CONFIG_REGION, TC_IOT_CONFIG_AUTH_API_URL,
+    TC_IOT_CONFIG_DEVICE_NAME, "",
 };
 
 int _process_desired( const char * doc_start, jsmntok_t * json_token, int tok_count, 

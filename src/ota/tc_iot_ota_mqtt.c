@@ -58,7 +58,7 @@ int tc_iot_ota_construct(tc_iot_ota_handler * ota_handler, tc_iot_mqtt_client * 
     ota_handler->sub_topic = sub_topic;
     ota_handler->pub_topic = pub_topic;
 
-    ret = tc_iot_mqtt_client_subscribe(ota_handler->p_mqtt_client, ota_handler->sub_topic, TC_IOT_QOS1, ota_msg_callback, ota_handler);
+    ret = tc_iot_mqtt_subscribe(ota_handler->p_mqtt_client, ota_handler->sub_topic, TC_IOT_QOS1, ota_msg_callback, ota_handler);
 
     return ret;
 }
@@ -76,9 +76,9 @@ void tc_iot_ota_destroy(tc_iot_ota_handler * ota_handler) {
     }
 
     TC_IOT_LOG_TRACE("unsubscribing from topic:%s", ota_handler->sub_topic);
-    tc_iot_mqtt_client_unsubscribe(ota_handler->p_mqtt_client, ota_handler->sub_topic);
+    tc_iot_mqtt_unsubscribe(ota_handler->p_mqtt_client, ota_handler->sub_topic);
     TC_IOT_LOG_TRACE("yielding for unsub ack");
-    tc_iot_mqtt_client_yield(ota_handler->p_mqtt_client, 100);
+    tc_iot_mqtt_yield(ota_handler->p_mqtt_client, 100);
 
     ota_handler->state = OTA_INITIALIZED;
     ota_handler->ota_id[0] = '\0';
@@ -176,7 +176,7 @@ int tc_iot_ota_send_message(tc_iot_ota_handler * ota_handler, char * message) {
     pubmsg.dup = 0;
 
     TC_IOT_LOG_TRACE("report: %s|%s", ota_handler->pub_topic, message);
-    return tc_iot_mqtt_client_publish(ota_handler->p_mqtt_client, ota_handler->pub_topic, &pubmsg);
+    return tc_iot_mqtt_publish(ota_handler->p_mqtt_client, ota_handler->pub_topic, &pubmsg);
 }
 
 int tc_iot_ota_report_upgrade(tc_iot_ota_handler * ota_handler, tc_iot_ota_state_e state, char * message, int percent) {

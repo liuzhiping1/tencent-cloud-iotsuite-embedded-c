@@ -3,17 +3,6 @@
 
 #include "tc_iot_inc.h"
 
-typedef enum _tc_iot_network_type {
-    TC_IOT_SOCK_STREAM,
-    TC_IOT_SOCK_DGRAM,
-}tc_iot_network_type;
-
-typedef enum _tc_iot_network_protocol {
-    TC_IOT_PROTO_HTTP,
-    TC_IOT_PROTO_MQTT,
-    TC_IOT_PROTO_COAP,
-} tc_iot_network_protocol;
-
 typedef struct tc_iot_network_t tc_iot_network_t;
 
 #if defined(ENABLE_TLS) || defined(ENABLE_DTLS)
@@ -48,8 +37,8 @@ typedef struct tc_iot_tls_data_t {
     mbedtls_x509_crt clicert;
     mbedtls_pk_context pkey;
     mbedtls_net_context ssl_fd;
-    mbedtls_timing_delay_context delay_timer;
-    mbedtls_ssl_cookie_ctx cookie_ctx;
+	mbedtls_timing_delay_context delay_timer;
+	mbedtls_ssl_cookie_ctx cookie_ctx;
 } tc_iot_tls_data_t;
 
 #endif
@@ -119,7 +108,7 @@ int tc_iot_copy_net_context(tc_iot_net_context_t * dest, tc_iot_net_context_init
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_net_init(tc_iot_network_t* network,
-                        tc_iot_net_context_init_t* net_context);
+        tc_iot_net_context_init_t* net_context);
 
 
 /**
@@ -135,7 +124,7 @@ int tc_iot_hal_net_init(tc_iot_network_t* network,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_net_connect(tc_iot_network_t* network, const char* host,
-                           uint16_t port);
+                             uint16_t port);
 
 /**
  * @brief tc_iot_hal_net_read 接收网络对端发送的数据
@@ -152,7 +141,7 @@ int tc_iot_hal_net_connect(tc_iot_network_t* network, const char* host,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_net_read(tc_iot_network_t* network, unsigned char* buffer,
-                        int len, int timeout_ms);
+                          int len, int timeout_ms);
 
 /**
  * @brief tc_iot_hal_net_write 发送数据到网络对端
@@ -166,7 +155,7 @@ int tc_iot_hal_net_read(tc_iot_network_t* network, unsigned char* buffer,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_net_write(tc_iot_network_t* network,const  unsigned char* buffer,
-                         int len, int timeout_ms);
+                           int len, int timeout_ms);
 
 
 /**
@@ -212,7 +201,7 @@ int tc_iot_hal_net_destroy(tc_iot_network_t* network);
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_tls_init(tc_iot_network_t* network,
-                        tc_iot_net_context_init_t* net_context);
+        tc_iot_net_context_init_t* net_context);
 
 /**
  * @brief tc_iot_hal_tls_connect 连接 TLS 服务端并进行相关握手及认证
@@ -225,7 +214,7 @@ int tc_iot_hal_tls_init(tc_iot_network_t* network,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_tls_connect(tc_iot_network_t* network, const char* host,
-                           uint16_t port);
+                               uint16_t port);
 
 /**
  * @brief tc_iot_hal_tls_read 接收 TLS 对端发送的数据
@@ -239,7 +228,7 @@ int tc_iot_hal_tls_connect(tc_iot_network_t* network, const char* host,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_tls_read(tc_iot_network_t* network, unsigned char* buffer,
-                        int len, int timeout_ms) ;
+        int len, int timeout_ms) ;
 
 /**
  * @brief tc_iot_hal_tls_write 发送数据到 TLS 对端
@@ -253,7 +242,7 @@ int tc_iot_hal_tls_read(tc_iot_network_t* network, unsigned char* buffer,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_tls_write(tc_iot_network_t* network, const unsigned char* buffer,
-                         int len, int timeout_ms);
+        int len, int timeout_ms);
 
 /**
  * @brief tc_iot_hal_tls_is_connected 判断当前是否已成功建立 TLS 连接
@@ -300,7 +289,7 @@ int tc_iot_hal_tls_destroy(tc_iot_network_t* network);
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_dtls_init(tc_iot_network_t* network,
-                         tc_iot_net_context_init_t* net_context);
+        tc_iot_net_context_init_t* net_context);
 
 /**
  * @brief tc_iot_hal_dtls_connect 连接 TLS 服务端并进行相关握手及认证
@@ -313,7 +302,7 @@ int tc_iot_hal_dtls_init(tc_iot_network_t* network,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_dtls_connect(tc_iot_network_t* network, const char* host,
-                            uint16_t port);
+                               uint16_t port);
 
 /**
  * @brief tc_iot_hal_dtls_read 接收 TLS 对端发送的数据
@@ -327,7 +316,7 @@ int tc_iot_hal_dtls_connect(tc_iot_network_t* network, const char* host,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_dtls_read(tc_iot_network_t* network, unsigned char* buffer,
-                         int len, int timeout_ms) ;
+        int len, int timeout_ms) ;
 
 /**
  * @brief tc_iot_hal_dtls_write 发送数据到 TLS 对端
@@ -341,7 +330,7 @@ int tc_iot_hal_dtls_read(tc_iot_network_t* network, unsigned char* buffer,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_dtls_write(tc_iot_network_t* network, const unsigned char* buffer,
-                          int len, int timeout_ms);
+        int len, int timeout_ms);
 
 /**
  * @brief tc_iot_hal_dtls_is_connected 判断当前是否已成功建立 TLS 连接
@@ -386,7 +375,7 @@ int tc_iot_hal_dtls_destroy(tc_iot_network_t* network);
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_udp_init(tc_iot_network_t* network,
-                        tc_iot_net_context_init_t* net_context);
+        tc_iot_net_context_init_t* net_context);
 
 
 /**
@@ -402,7 +391,7 @@ int tc_iot_hal_udp_init(tc_iot_network_t* network,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_udp_connect(tc_iot_network_t* network, const char* host,
-                           uint16_t port);
+                             uint16_t port);
 
 /**
  * @brief tc_iot_hal_udp_read 接收网络对端发送的数据
@@ -419,7 +408,7 @@ int tc_iot_hal_udp_connect(tc_iot_network_t* network, const char* host,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_udp_read(tc_iot_network_t* network, unsigned char* buffer,
-                        int len, int timeout_ms);
+                          int len, int timeout_ms);
 
 /**
  * @brief tc_iot_hal_udp_write 发送数据到网络对端
@@ -433,7 +422,7 @@ int tc_iot_hal_udp_read(tc_iot_network_t* network, unsigned char* buffer,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_hal_udp_write(tc_iot_network_t* network,const  unsigned char* buffer,
-                         int len, int timeout_ms);
+                           int len, int timeout_ms);
 
 
 /**
@@ -467,6 +456,5 @@ int tc_iot_hal_udp_disconnect(tc_iot_network_t* network);
  */
 int tc_iot_hal_udp_destroy(tc_iot_network_t* network);
 
-int tc_iot_network_prepare(tc_iot_network_t * p_network, tc_iot_network_type type, tc_iot_network_protocol proto, bool over_tls, void * extra_options);
 
 #endif /* end of include guard */
