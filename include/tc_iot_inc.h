@@ -24,6 +24,7 @@
 #include "common/tc_iot_url.h"
 #include "common/tc_iot_sign_utils.h"
 #include "common/tc_iot_http_utils.h"
+#include "common/tc_iot_http_client.h"
 
 #include "common/tc_iot_certs.h"
 

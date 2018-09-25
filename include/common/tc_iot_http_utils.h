@@ -3,171 +3,9 @@
 
 #include "tc_iot_inc.h"
 
-#define HTTP_VER_1_0 "1.0"
-#define HTTP_VER_1_1 "1.1"
-
-#define HTTP_PUT "PUT"
-#define HTTP_HEAD "HEAD"
-#define HTTP_POST "POST"
-#define HTTP_GET "GET"
-
-#define TC_IOT_USER_AGENT "tciotclient/1.0"
-
-#define HTTP_SPLIT_STR "\r\n"
-#define HTTP_REQUEST_LINE_FMT ("%s %s HTTP/%s" HTTP_SPLIT_STR)
-#define HTTP_HEADER_FMT "%s: %s\r\n"
-#define HTTP_HEADER_HOST "Host"
-#define HTTP_HEADER_ACCEPT "Accept"
-#define HTTP_HEADER_ACCEPT_ENCODING "Accept-Encoding"
-#define HTTP_HEADER_USER_AGENT "User-Agent"
-#define HTTP_HEADER_CONTENT_LENGTH "Content-Length"
-#define HTTP_HEADER_LOCATION "Location"
-#define HTTP_HEADER_CONTENT_TYPE "Content-Type"
-#define HTTP_CONTENT_FORM_URLENCODED "application/x-www-form-urlencoded"
-#define HTTP_CONTENT_OCTET_STREAM "application/octet-stream"
-#define HTTP_CONTENT_FORM_DATA "multipart/form-data"
-#define HTTP_CONTENT_JSON "application/json"
-
-#define HTTPS_PREFIX "https"
-#define HTTPS_PREFIX_LEN (sizeof(HTTPS_PREFIX) - 1)
-
-#define TC_IOT_HTTP_MAX_URL_LENGTH     128
-#define TC_IOT_HTTP_MAX_HOST_LENGTH    128
-
-
-/* examples: */
-/* HTTP/1.0 200 OK */
-/* HTTP/1.1 404 Not Found */
-/* HTTP/1.1 503 Service Unavailable */
-#define HTTP_RESPONSE_STATE_PREFIX "HTTP/1."
-#define HTTP_RESPONSE_STATE_PREFIX_LEN (sizeof(HTTP_RESPONSE_STATE_PREFIX)-1)
-
-
-#define HTTP_BODY_FMT "\r\n%s"
-
-typedef struct _tc_iot_http_request {
-    tc_iot_yabuffer_t buf;
-} tc_iot_http_request;
-
-
 
 /**
- * @brief tc_iot_http_request_init 初始化请求缓存区
- *
- * @param request HTTP 请求对象
- * @param method 请求方法：GET/POST/PUT ...
- * @param abs_path 请求地址："/", "/index", "/news?t=abc" ...
- * @param abs_path_len 请求地址长度
- * @param http_version HTTP 协议版本：1.0, 1.1 ...
- *
- * @return >=0 初始化后数据占用缓存长度，<0 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_http_request_init(tc_iot_http_request* request, const char* method,
-                             const char* abs_path, int abs_path_len,
-                             const char* http_version);
-
-/**
- * @brief tc_iot_http_request_append_header 添加 HTTP header头部信息。
- *
- * @param request HTTP 请求对象
- * @param header Header 名称
- * @param val Header 值
- *
- * @return >=0 添加的 Header 实际占用空间大小，<0 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_http_request_append_header(tc_iot_http_request* request,
-                                      const char* header, const char* val);
-
-/**
- * @brief tc_iot_http_request_n_append_header 添加 HTTP header头部信息。
- *
- * @param request HTTP 请求对象
- * @param header Header 名称
- * @param val Header 值
- * @param val_len Header 值的长度
- *
- * @return >=0 添加的 Header 实际占用空间大小，<0 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_http_request_n_append_header(tc_iot_http_request* request,
-                                        const char* header, const char* val,
-                                        int val_len);
-
-/**
- * @brief tc_iot_http_request_append_body 添加请求包体
- *
- * @param request HTTP 请求对象
- * @param body 包体数据
- *
- * @return >=0 添加的 Body 实际占用空间大小，<0 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_http_request_append_body(tc_iot_http_request* request,
-                                    const char* body);
-
-
-/**
- * @brief tc_iot_create_http_request 创建 HTTP 请求
- *
- * @param request HTTP 请求对象
- * @param host 服务器地址
- * @param host_len 服务器地址长度
- * @param method 请求方法
- * @param abs_path 请求服务路径
- * @param abs_path_len 请求服务路径长度
- * @param http_version HTTP 协议版本
- * @param user_agent User Agent 头部信息
- * @param content_type Content Type 头部信息
- * @param body HTTP 请求Body
- *
- * @return 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_create_http_request(tc_iot_http_request* request, const char* host,
-                               int host_len, const char* method,
-                               const char* abs_path, int abs_path_len,
-                               const char* http_version, const char* user_agent,
-                               const char* content_type, const char* body);
-
-/**
- * @brief tc_iot_create_post_request 创建 HTTP POST 请求
- *
- * @param request HTTP 请求对象
- * @param abs_path 请求服务路径
- * @param abs_path_len 请求服务路径长度
- * @param host 服务器地址
- * @param host_len 服务器地址长度
- * @param body HTTP 请求Body
- * @param content_type HTTP 请求Body 格式
- *
- * @return 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_create_post_request(tc_iot_http_request* request,
-                               const char* abs_path, int abs_path_len,
-                               const char* host, int host_len,
-                               const char* body, const char * content_type);
-
-/**
- * @brief tc_iot_create_get_request 创建 HTTP GET 请求
- *
- * @param request HTTP 请求对象
- * @param abs_path 请求服务路径
- * @param abs_path_len 请求服务路径长度
- * @param host 服务器地址
- * @param host_len 服务器地址长度
- *
- * @return 返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_create_get_request(tc_iot_http_request* request,
-                               const char* abs_path, int abs_path_len,
-                               const char* host, int host_len);
-
-/**
- * @brief tc_iot_calc_auth_sign 计算 Token 请求签名
+ * @brief 计算 Token 请求签名
  *
  * @param sign_out 签名( Base64 编码)结果
  * @param max_sign_len 签名( Bsse64 编码)结果区长度
@@ -185,13 +23,13 @@ int tc_iot_create_get_request(tc_iot_http_request* request,
 int tc_iot_calc_auth_sign(char* sign_out, int max_sign_len, const char* secret,
                           const char* client_id,
                           const char* device_name,
-                          long expire, long nonce,
+                          unsigned int expire, unsigned int nonce,
                           const char* product_id, 
-                          long timestamp);
+                          unsigned int timestamp);
 
 
 /**
- * @brief tc_iot_create_auth_request_form 构造 Token HTTP 签名请求 form
+ * @brief 构造 Token HTTP 签名请求 form
  *
  * @param form 结果缓存区
  * @param max_form_len 结果缓存区最大大小
@@ -210,13 +48,13 @@ int tc_iot_create_auth_request_form(char* form,  int max_form_len,
                                     const char* secret, 
                                     const char* client_id, 
                                     const char* device_name,
-                                    long expire,
-                                    long nonce,
+                                    unsigned int expire,
+                                    unsigned int nonce,
                                     const char* product_id,
-                                    long timestamp);
+                                    unsigned int timestamp);
 
 /**
- * @brief tc_iot_create_active_device_form 构造 get device 设备激活 HTTP 签名请求 form
+ * @brief 构造 get device 设备激活 HTTP 签名请求 form
  *
  * @param form 结果缓存区
  * @param max_form_len 结果缓存区最大大小
@@ -229,46 +67,24 @@ int tc_iot_create_auth_request_form(char* form,  int max_form_len,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_create_active_device_form(char* form, int max_form_len,
-									const char* product_secret, 
-                                    const char* device_name,  
-									const char* product_id,
-                                    long nonce, long timestamp);
-
+                                     const char* product_secret, 
+                                     const char* device_name,  
+                                     const char* product_id,
+                                     unsigned int nonce, unsigned int timestamp);
 /**
- * @brief tc_iot_parse_http_response_code 解析 HTTP 响应数据返回码
+ * @brief 构造 query 请求云端配置接口 HTTP form
  *
- * @param resp HTTP 响应数据字符串
- *
- * @return >0 HTTP Status Code, 比如 200、404、50x 等， <0 数据格式非法，无法解
- * 析
+ * @param form 结果缓存区
+ * @param max_form_len 结果缓存区最大大小
+ * @param product_id Product Id , 例子 : "iot-dalqbv1g"	
+ * @return >=0 签名结果实际长度，<0 错误码
+ * @see tc_iot_sys_code_e
  */
-int tc_iot_parse_http_response_code(const char * http_resp);
-
-int tc_iot_http_get(tc_iot_network_t* network,
-                         tc_iot_http_request* request, const char* url,
-                         int timeout_ms, const char * extra_header);
-
-int tc_iot_http_head(tc_iot_network_t* network,
-                         tc_iot_http_request* request, const char* url,
-                         int timeout_ms);
-int http_post_urlencoded(tc_iot_network_t* network,
-                         tc_iot_http_request* request, const char* url,
-                         const char* encoded_body, char* resp, int resp_max_len,
-                         int timeout_ms);
-int http_post_json(tc_iot_network_t* network,
-                         tc_iot_http_request* request, const char* url,
-                         const char* json_body, char* resp, int resp_max_len,
-                         int timeout_ms);
-
-
-int tc_iot_create_mqapi_rpc_json(char* form, int max_form_len,
-                                    const char* secret,
-                                    const char* device_name,
-                                    const char* message,
-                                    long nonce,
-                                    const char* product_id,
-                                    long timestamp
-                                    );
-
-
+int tc_iot_create_query_request_form(char* form, int max_form_len,
+                                     const char* product_id);
+int tc_iot_add_url_encoded_field(tc_iot_yabuffer_t* buffer,
+                                        const char* prefix, const char* val,
+                                 int val_len);
+int tc_iot_add_url_uint_field(tc_iot_yabuffer_t* buffer, const char* prefix,
+                       unsigned int val);
 #endif /* end of include guard */

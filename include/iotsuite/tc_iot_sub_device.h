@@ -96,8 +96,8 @@ int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...);
  * @param c 网关对象
  * @param product_count 上线产品数
  * @param ... 变参格式：
- *            product_id_1, M(设备数), device_001, device_secret_001 ..., device_secret_M,
- *            product_id_2, N(设备数), device_001, device_secret_001 ..., device_secret_N
+ *            product_id_1, M(设备数), device_001, ..., device_M,
+ *            product_id_2, N(设备数), device_001, ..., device_N
  * @return 结果返回码
  * @see tc_iot_sys_code_e
  */
