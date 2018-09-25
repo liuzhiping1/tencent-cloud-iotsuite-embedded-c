@@ -89,9 +89,11 @@ int tc_iot_shadow_construct(tc_iot_shadow_client *c,
 }
 
 
-void tc_iot_shadow_destroy(tc_iot_shadow_client *c) {
+int tc_iot_shadow_destroy(tc_iot_shadow_client *c) {
     if (c) {
-        tc_iot_mqtt_client_disconnect(&(c->mqtt_client));
+        return tc_iot_mqtt_client_disconnect(&(c->mqtt_client));
+    } else {
+        return TC_IOT_NULL_POINTER;
     }
 }
 

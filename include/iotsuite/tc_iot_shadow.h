@@ -129,7 +129,7 @@ int tc_iot_shadow_construct(tc_iot_shadow_client * p_shadow_client,
  *
  * @param p_shadow_client 设备影子对象
  */
-void tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
+int tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
 
 
 /**
