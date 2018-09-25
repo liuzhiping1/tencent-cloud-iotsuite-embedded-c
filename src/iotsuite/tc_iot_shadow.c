@@ -157,6 +157,18 @@ tc_iot_shadow_session * tc_iot_find_empty_session(tc_iot_shadow_client *c) {
     return NULL;
 }
 
+tc_iot_shadow_session * tc_iot_fetch_session(tc_iot_shadow_client *c) {
+    tc_iot_shadow_session * p_session = NULL;
+
+    p_session = tc_iot_find_empty_session(c);
+    if (p_session) {
+        _tc_iot_generate_session_id( &(p_session->sid[0]),sizeof(p_session->sid), &(c->mqtt_client));
+        return p_session;
+    }
+
+    return NULL;
+}
+
 int tc_iot_shadow_pending_session_count(tc_iot_shadow_client *c) {
     int i;
     int total = 0;
@@ -289,7 +301,7 @@ static unsigned int  _get_unique_session_id(tc_iot_mqtt_client* c) {
 }
 
 
-static int  _generate_session_id(char * session_id, int session_id_len, tc_iot_mqtt_client* c) {
+int  _tc_iot_generate_session_id(char * session_id, int session_id_len, tc_iot_mqtt_client* c) {
     unsigned int sid = _get_unique_session_id(c);
     int ret ;
     ret = tc_iot_hal_snprintf(session_id, session_id_len, "%x", sid);
@@ -313,7 +325,7 @@ int tc_iot_shadow_doc_pack_for_get_with_sid(char *buffer, int buffer_len,
     tc_iot_json_writer_string(w ,"method", TC_IOT_MQTT_METHOD_GET);
 
     if (session_id && (session_id_len >= TC_IOT_SESSION_ID_LEN)) {
-        sid_len = _generate_session_id(session_id, session_id_len, &(c->mqtt_client));
+        sid_len = _tc_iot_generate_session_id(session_id, session_id_len, &(c->mqtt_client));
         if (sid_len <= 0) {
             TC_IOT_LOG_ERROR("generate session id failed: sid_len=%d", sid_len);
             memset(session_id, '0', TC_IOT_SESSION_ID_LEN);
@@ -350,7 +362,7 @@ int tc_iot_shadow_doc_pack_for_update_with_sid(char *buffer, int buffer_len,
     tc_iot_json_writer_string(w ,"method", TC_IOT_MQTT_METHOD_UPDATE);
 
     if (session_id && (session_id_len >= TC_IOT_SESSION_ID_LEN)) {
-        sid_len = _generate_session_id(session_id, session_id_len, &(c->mqtt_client));
+        sid_len = _tc_iot_generate_session_id(session_id, session_id_len, &(c->mqtt_client));
         if (sid_len <= 0) {
             TC_IOT_LOG_ERROR("generate session id failed: sid_len=%d", sid_len);
             memset(session_id, '0', TC_IOT_SESSION_ID_LEN);
@@ -440,7 +452,7 @@ int tc_iot_shadow_doc_pack_for_delete_with_sid(char *buffer, int buffer_len,
     tc_iot_json_writer_string(w ,"method", TC_IOT_MQTT_METHOD_DELETE);
 
     if (session_id && (session_id_len >= TC_IOT_SESSION_ID_LEN)) {
-        sid_len = _generate_session_id(session_id, session_id_len, &(c->mqtt_client));
+        sid_len = _tc_iot_generate_session_id(session_id, session_id_len, &(c->mqtt_client));
         if (sid_len <= 0) {
             TC_IOT_LOG_ERROR("generate session id failed: sid_len=%d", sid_len);
             memset(session_id, '0', TC_IOT_SESSION_ID_LEN);
@@ -729,7 +741,7 @@ int tc_iot_shadow_check_and_report(tc_iot_shadow_client *c, char * buffer, int b
         tc_iot_json_writer_string(w ,"method", TC_IOT_MQTT_METHOD_UPDATE);
     }
 
-    sid_len = _generate_session_id(&(p_session->sid[0]), TC_IOT_SESSION_ID_LEN+1, &(c->mqtt_client));
+    sid_len = _tc_iot_generate_session_id(&(p_session->sid[0]), TC_IOT_SESSION_ID_LEN+1, &(c->mqtt_client));
     if (sid_len <= 0) {
         TC_IOT_LOG_ERROR("generate session id failed: sid_len=%d", sid_len);
         memset(&(p_session->sid[0]), '0', TC_IOT_SESSION_ID_LEN);
@@ -839,5 +851,4 @@ exit:
     }
     return rc;
 }
-
 
