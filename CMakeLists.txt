@@ -39,7 +39,6 @@ file(COPY tools/tc_iot_code_generator.py DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRE
 
 option(ENABLE_MQTT "use MQTT" ON)
 option(ENABLE_DATA_TEMPLATE "use Data Template" ON)
-option(ENABLE_SUB_DEVICE "use Sub Device" ON)
 option(ENABLE_COAP "use CoAP" ON)
 option(ENABLE_OTA "use OTA" ON)
 

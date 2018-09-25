@@ -4,7 +4,6 @@
 #define ENABLE_MQTT
 #define ENABLE_OTA
 #define ENABLE_DATA_TEMPLATE
-#define ENABLE_SUB_DEVICE
 
 #define ENABLE_COAP
 

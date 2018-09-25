@@ -4,7 +4,6 @@
 #cmakedefine ENABLE_MQTT
 #cmakedefine ENABLE_OTA
 #cmakedefine ENABLE_DATA_TEMPLATE
-#cmakedefine ENABLE_SUB_DEVICE
 
 #cmakedefine ENABLE_COAP
 
