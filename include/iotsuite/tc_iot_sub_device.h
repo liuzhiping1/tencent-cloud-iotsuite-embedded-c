@@ -36,6 +36,8 @@
 
 #define TC_IOT_SUB_DEVICE_OFFLINE       "device_offline"
 
+#define TC_IOT_SUB_DEVICE_GROUP_UPDATE       "group_update"
+
 /*--- end 子设备请求 method 字段取值----*/
 
 
@@ -102,5 +104,14 @@ int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...);
  * @see tc_iot_sys_code_e
  */
 int tc_iot_sub_device_offline(tc_iot_gateway_dev * c, int product_count, ...);
+
+void _tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
+
+int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int buffer_len, const char * method,message_ack_handler callback, int timeout_ms, void * session_context);
+int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const char * product_id);
+int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name);
+int tc_iot_sub_device_group_doc_add_state_holder(char * buffer, int buffer_len, const char * state_holder);
+int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, const char * name,
+                                         tc_iot_shadow_data_type_e type , const void * value);
 
 #endif /* TC_IOT_SUB_DEVICE_H */
