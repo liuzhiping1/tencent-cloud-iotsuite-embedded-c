@@ -92,7 +92,6 @@ int tc_iot_http_mqapi_rpc( char * result, int result_len,
 
     p_http_client = &http_client;
     tc_iot_http_client_init(p_http_client, HTTP_POST);
-    tc_iot_http_client_set_version(p_http_client, HTTP_VERSION_1_0);
     tc_iot_http_client_set_body(p_http_client, sign_out);
     tc_iot_http_client_set_host(p_http_client, temp_buf);
     tc_iot_http_client_set_abs_path(p_http_client, TC_IOT_API_RPC_PATH);
