@@ -100,5 +100,6 @@ print_help:
     }
 
     fclose(helper.fp);
+    return 0;
 }
 

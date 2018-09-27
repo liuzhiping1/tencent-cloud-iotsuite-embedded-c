@@ -110,12 +110,12 @@ int tc_iot_sub_device_group_req(tc_iot_gateway_dev * c,
         product_id = va_arg(args, const char *);
         device_count = va_arg(args, int);
 
-        tc_iot_json_writer_object_begin(w, "{");
+        tc_iot_json_writer_object_begin(w, NULL);
         tc_iot_json_writer_string(w , "product", product_id);
         tc_iot_json_writer_array_begin(w ,"device_list");
         for (j = 0; j < device_count; ++j) {
             device_name = va_arg(args, const char *);
-            tc_iot_json_writer_object_begin(w, "{");
+            tc_iot_json_writer_object_begin(w, NULL);
             tc_iot_json_writer_string(w , "dev_name", device_name);
             if (is_online) {
                 device_secret = va_arg(args, const char *);
@@ -324,11 +324,11 @@ int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int dept
     int ret = 0;
     int i = 0;
     int used_len = 0;
-    int buffer_left = 0;
     char backward_quotes[16];
-    int write_bytes = 0;
     char * pos = NULL;
     int bottom_depth = 0;
+    tc_iot_json_writer writer, *w;
+    w = &writer;
 
     IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
     used_len = strlen(buffer);
@@ -374,92 +374,49 @@ int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int dept
     // {..., "sub_dev":[... {"device_list":[ ... ]}]}
     // backward to here                          ^
     pos = &buffer[used_len-depth];
-    buffer_left = buffer_len - used_len + depth;
-    if ( pos[-1] != '{'  && pos[-1] != '[') {
-        ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                  ",");
-        if (ret <= 0) {
-            TC_IOT_LOG_ERROR("buffer overflow");
-            return TC_IOT_BUFFER_OVERFLOW;
-        }
-        write_bytes += ret;
-        pos += ret;
-    }
 
-    if (name) {
-        ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                  "\"%s\":", name);
-        if (ret <= 0) {
-            TC_IOT_LOG_ERROR("buffer overflow");
-            return TC_IOT_BUFFER_OVERFLOW;
-        }
-        write_bytes += ret;
-        pos += ret;
-    } else {
-        /* TC_IOT_LOG_TRACE("name is null, skip write name"); */
-    }
+    tc_iot_json_writer_load(w, pos, buffer_len-used_len+depth);
 
     if (!value) {
-        ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                  "null%s", backward_quotes);
-        if (ret <= 0) {
-            TC_IOT_LOG_ERROR("buffer overflow");
-            return TC_IOT_BUFFER_OVERFLOW;
-        }
-        write_bytes += ret;
-        pos += ret;
+        tc_iot_json_writer_null(w, name);
     } else {
         switch(type) {
         case TC_IOT_SHADOW_TYPE_BOOL:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "%d%s", *(tc_iot_shadow_bool *)value,  backward_quotes);
+            ret = tc_iot_json_writer_int(w, name, *(tc_iot_shadow_bool *)value);
             break;
         case TC_IOT_SHADOW_TYPE_NUMBER:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "%f%s", *(tc_iot_shadow_number *)value,  backward_quotes);
+            ret = tc_iot_json_writer_decimal(w, name, *(tc_iot_shadow_number *)value);
             break;
         case TC_IOT_SHADOW_TYPE_ENUM:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "%d%s", *(tc_iot_shadow_enum *)value,  backward_quotes);
+            ret = tc_iot_json_writer_int(w, name, *(tc_iot_shadow_enum *)value);
             break;
         case TC_IOT_SHADOW_TYPE_INT:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "%d%s", *(tc_iot_shadow_int *)value,  backward_quotes);
+            ret = tc_iot_json_writer_int(w, name, *(tc_iot_shadow_int *)value);
             break;
         case TC_IOT_SHADOW_TYPE_UINT:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "%u%s", *(tc_iot_shadow_uint *)value,  backward_quotes);
+            ret = tc_iot_json_writer_uint(w, name, *(tc_iot_shadow_uint *)value);
             break;
         case TC_IOT_SHADOW_TYPE_STRING:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "\"%s\"%s", (tc_iot_shadow_string)value,  backward_quotes);
+            ret = tc_iot_json_writer_string(w, name, (tc_iot_shadow_string)value);
             break;
         case TC_IOT_SHADOW_TYPE_ARRAY:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "[%s]%s", (tc_iot_shadow_string)value,  backward_quotes);
+            ret = tc_iot_json_writer_raw_data(w, name, "[]");
             break;
         case TC_IOT_SHADOW_TYPE_OBJECT:
-            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
-                                      "{%s}%s", (tc_iot_shadow_string)value,  backward_quotes);
+            ret = tc_iot_json_writer_raw_data(w, name, "{}");
             break;
         default:
             TC_IOT_LOG_ERROR("type=%d invalid", type);
         }
     }
 
+    ret = tc_iot_json_writer_raw_end_quote(w, backward_quotes);
+
     if (ret <= 0) {
         TC_IOT_LOG_ERROR("buffer overflow");
         return TC_IOT_BUFFER_OVERFLOW;
     }
-    write_bytes += ret;
-    pos += ret;
 
-    if (write_bytes < buffer_left) {
-        *pos  = '\0';
-    } else {
-        TC_IOT_LOG_TRACE("write_bytes(%d) < buffer_left(%d)", write_bytes, buffer_left);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return write_bytes-depth;
+    return w->pos-depth;
 }
 

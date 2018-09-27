@@ -19,6 +19,20 @@ typedef struct _tc_iot_json_writer {
 
 
 /**
+ * @brief    加载临时缓存到 json_writer
+ *
+ * @details  为json writer 指定数据缓存区，及初始相关状态。
+ *
+ * @param    w 待初始化的 json writer
+ * @param    buffer 数据缓存区
+ * @param    buffer_len 数据缓存区长度
+ *
+ * @return   返回码
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_json_writer_load(tc_iot_json_writer * w, char * buffer, int buffer_len);
+
+/**
  * @brief 初始化 json writer 数据，指定待写入的 buffer
  *
  * @param w writer 对象
@@ -188,5 +202,20 @@ int tc_iot_json_writer_raw_data(tc_iot_json_writer * w, const char * name, const
  * @see tc_iot_sys_code_e
  */
 int tc_iot_json_writer_format_data(tc_iot_json_writer * w, const char * name, const char * format, const void * value_ptr);
+
+/**
+ * @brief    写入一连串的 JSON 反括号，完整序列化 JSON 串。
+ *
+ * @details  写入原始字符串数据，例如：]}]}。一般用来写入已经预处理好的，格式化的符合类型 JSON 数据。
+ *           数据必须是预先格式化并做好转义的。
+ *
+ * @param    w json writer
+ * @param    name 名称
+ * @param    value 取值
+ *
+ * @return   > 0 时，表示处理过程中，往 buffer 区域写入的字节数。 < 0，表示出错
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_json_writer_raw_end_quote(tc_iot_json_writer * w, const char * end_quotes);
 
 #endif /* TC_IOT_JSON_WRITER_H */
