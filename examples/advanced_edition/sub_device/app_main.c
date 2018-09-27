@@ -53,45 +53,46 @@ void do_sim_data_change(void) {
     tc_iot_shadow_enum enum_var = 3;
     tc_iot_shadow_bool bool_var = 1;
     tc_iot_shadow_string str_var = "Wonderful world.";
+    tc_iot_shadow_uint seq = 8888;
 
     ret = tc_iot_sub_device_group_doc_init(tc_iot_get_shadow_client(), buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE,
                                            _tc_iot_group_req_message_ack_callback,
                                            10000, NULL);
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-abcd001");
-    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "device001");
+    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "device001", seq);
     ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "int_var", TC_IOT_SHADOW_TYPE_INT, &int_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  &enum_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  &bool_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, &int_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  &enum_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  &bool_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var);
 
     ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "string_var", TC_IOT_SHADOW_TYPE_STRING, NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "int_var", TC_IOT_SHADOW_TYPE_INT, NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL);
 
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-abcd002");
-    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "device002");
+    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "device002", 0);
     ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "int_var", TC_IOT_SHADOW_TYPE_INT, &int_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  &enum_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  &bool_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, &int_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  &enum_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  &bool_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var);
 
     ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "string_var", TC_IOT_SHADOW_TYPE_STRING, NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "int_var", TC_IOT_SHADOW_TYPE_INT, NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
     } else {

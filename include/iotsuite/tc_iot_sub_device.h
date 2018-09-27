@@ -109,9 +109,9 @@ void _tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_stat
 
 int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int buffer_len, const char * method,message_ack_handler callback, int timeout_ms, void * session_context);
 int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const char * product_id);
-int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name);
+int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name, unsigned int sequence);
 int tc_iot_sub_device_group_doc_add_state_holder(char * buffer, int buffer_len, const char * state_holder);
-int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, const char * name,
+int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int depth, const char * name,
                                          tc_iot_shadow_data_type_e type , const void * value);
 
 #endif /* TC_IOT_SUB_DEVICE_H */

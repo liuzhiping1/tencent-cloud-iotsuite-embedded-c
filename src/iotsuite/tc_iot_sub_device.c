@@ -23,8 +23,8 @@ int tc_iot_calc_sub_device_online_sign(char* sign_out, int max_sign_len, const c
     ret = tc_iot_base64_encode((unsigned char *)sha256_digest, sizeof(sha256_digest), b64_buf,
                                max_sign_len);
     if (ret < max_sign_len && ret > 0) {
-       b64_buf[ret] = '\0';
-       tc_iot_mem_usage_log("b64_buf", max_sign_len, ret);
+        b64_buf[ret] = '\0';
+        tc_iot_mem_usage_log("b64_buf", max_sign_len, ret);
     } else {
         TC_IOT_LOG_ERROR("ret = %d", ret);
     }
@@ -215,7 +215,6 @@ int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int 
         return TC_IOT_SHADOW_SESSION_NOT_ENOUGH;
     }
 
-
     tc_iot_json_writer_open(w, buffer, buffer_len);
     tc_iot_json_writer_string(w ,"method", method);
 
@@ -244,169 +243,223 @@ int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int 
 }
 
 int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const char * product_id) {
-    int used_len = 0;
     int ret = 0;
-    int buffer_left = 0;
-    const char * backward_quotes = "]}";
-    int backward = strlen(backward_quotes);
+    int write_bytes = 0;
 
-    IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
-    used_len = strlen(buffer);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 2, NULL ,TC_IOT_SHADOW_TYPE_OBJECT, "");
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("product=%s, ret=%d", product_id, ret);
+        return ret;
+    }
+    write_bytes += ret;
 
-    // check data;
-    if (used_len < (backward*2) || buffer[0] != '{' || strcmp(buffer+used_len-backward, backward_quotes) != 0) {
-        TC_IOT_LOG_ERROR("buffer not initialized correctly: %s", buffer);
-        return TC_IOT_INVALID_PARAMETER;
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 0, "product", TC_IOT_SHADOW_TYPE_STRING,  product_id);
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("product=%s, ret=%d", product_id, ret);
+        return ret;
     }
-
-    // {..., "sub_dev":[... ]}
-    // backward to here     ^
-    used_len -= backward;
-    buffer_left = buffer_len - used_len;
-    if (buffer[used_len-1] != '{'  && buffer[used_len-1] != '[') {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,",{\"product\":\"%s\",\"device_list\":[]}%s", product_id, backward_quotes);
-    } else {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,"{\"product\":\"%s\",\"device_list\":[]}%s", product_id, backward_quotes);
+    write_bytes += ret;
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "device_list",TC_IOT_SHADOW_TYPE_ARRAY, "");
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("product=%s, ret=%d", product_id, ret);
+        return ret;
     }
-    if (ret < buffer_left) {
-        buffer[used_len+ret] = '\0';
-    } else {
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return ret - backward;
+    write_bytes += ret;
+    return write_bytes;
 }
 
-int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name) {
+int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name, unsigned int sequence) {
     int ret = 0;
-    int used_len = 0;
-    int buffer_left = 0;
-    const char * backward_quotes = "]}]}";
-    int backward = strlen(backward_quotes);
+    int write_bytes = 0;
 
-    IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
-    used_len = strlen(buffer);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 0, NULL ,TC_IOT_SHADOW_TYPE_OBJECT, "");
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("device_name=%s, ret=%d",device_name, ret);
+        return ret;
+    }
+    write_bytes += ret;
 
-    // check data;
-    if (used_len < (backward*2) || buffer[0] != '{' || strcmp(buffer+used_len-backward, backward_quotes) != 0) {
-        TC_IOT_LOG_ERROR("buffer not initialized correctly: %s", buffer);
-        return TC_IOT_INVALID_PARAMETER;
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 0, "dev_name", TC_IOT_SHADOW_TYPE_STRING,  device_name);
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("device_name=%s, ret=%d",device_name, ret);
+        return ret;
+    }
+    write_bytes += ret;
+
+    if (sequence > 0) {
+        ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 0, "sequence", TC_IOT_SHADOW_TYPE_UINT,  &sequence);
+        if (ret < 0) {
+            TC_IOT_LOG_ERROR("device_name=%s, ret=%d",device_name, ret);
+            return ret;
+        }
+        write_bytes += ret;
     }
 
-    // {..., "sub_dev":[... {"device_list":[ ... ]}]}
-    // backward to here                          ^
-    used_len -= backward;
-    buffer_left = buffer_len - used_len;
-    if (buffer[used_len-1] != '{'  && buffer[used_len-1] != '[') {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                  ",{\"dev_name\":\"%s\",\"state\":{}}%s", device_name,backward_quotes);
-    } else {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                  "{\"dev_name\":\"%s\",\"state\":{}}%s", device_name,backward_quotes);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state",TC_IOT_SHADOW_TYPE_OBJECT, "");
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("device_name=%s, ret=%d",device_name, ret);
+        return ret;
     }
-    if (ret < buffer_left) {
-        buffer[used_len+ret] = '\0';
-    } else {
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return ret - 2;
+    write_bytes += ret;
+
+    return write_bytes;
 }
 
 int tc_iot_sub_device_group_doc_add_state_holder(char * buffer, int buffer_len, const char * state_holder) {
     int ret = 0;
-    int used_len = 0;
-    int buffer_left = 0;
-    const char * backward_quotes = "}}]}]}";
-    int backward = strlen(backward_quotes);
+    int write_bytes = 0;
 
-    IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
-    used_len = strlen(buffer);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 6, state_holder ,TC_IOT_SHADOW_TYPE_OBJECT, "");
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("state_holder=%s, ret=%d",state_holder, ret);
+        return ret;
+    }
+    write_bytes += ret;
 
-    // check data;
-    if (used_len < (backward*2) || buffer[0] != '{' || strcmp(buffer+used_len-backward, backward_quotes) != 0) {
-        TC_IOT_LOG_ERROR("buffer not initialized correctly: %s", buffer);
-        return TC_IOT_INVALID_PARAMETER;
-    }
-
-    // {..., "sub_dev":[... {"device_list":[ ... ]}]}
-    // backward to here                          ^
-    used_len -= backward;
-    buffer_left = buffer_len - used_len;
-    if (buffer[used_len-1] != '{'  && buffer[used_len-1] != '[') {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                  ",\"%s\":{}%s", state_holder, backward_quotes);
-    } else {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                  "\"%s\":{}%s", state_holder, backward_quotes);
-    }
-    if (ret < buffer_left) {
-        buffer[used_len+ret] = '\0';
-    } else {
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return ret - 2;
+    return write_bytes;
 }
 
-int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, const char * name,
+int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int depth, const char * name,
                                          tc_iot_shadow_data_type_e type , const void * value) {
     int ret = 0;
+    int i = 0;
     int used_len = 0;
     int buffer_left = 0;
-    const char * backward_quotes = "}}}]}]}";
-    int backward = strlen(backward_quotes);
+    char backward_quotes[16];
+    int write_bytes = 0;
+    char * pos = NULL;
+    int bottom_depth = 0;
 
     IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
-    IF_NULL_RETURN(name, TC_IOT_NULL_POINTER);
     used_len = strlen(buffer);
+    if (used_len > buffer_len) {
+        TC_IOT_LOG_ERROR("used_len(%d) > buffer_len(%d)", used_len, buffer_len);
+        return TC_IOT_INVALID_PARAMETER;
+    }
+
+    if (depth <= 0) {
+        pos = buffer+used_len-1;
+        for (i = 0; (i < sizeof(backward_quotes)) && (pos >= buffer); i++, pos--) {
+            if (*pos != '}' && *pos != ']') {
+                break;
+            }
+            bottom_depth++;
+        }
+
+        depth += bottom_depth;
+        /* TC_IOT_LOG_TRACE("auto depth=%d, used_len=%d", depth, used_len); */
+    }
 
     // check data;
-    if (used_len < (backward*2) || buffer[0] != '{' || strcmp(buffer+used_len-backward, backward_quotes) != 0) {
-        TC_IOT_LOG_ERROR("buffer not initialized correctly: %s", buffer);
+    if (used_len < (depth*2)) {
+        TC_IOT_LOG_ERROR("buffer invalid, used_len=%d, depth=%d: %s", used_len, depth, buffer);
         return TC_IOT_INVALID_PARAMETER;
+    }
+
+    if (depth >= sizeof(backward_quotes)) {
+        TC_IOT_LOG_ERROR("depth too much, backwards not enough.: %s", buffer);
+        return TC_IOT_INVALID_PARAMETER;
+    }
+
+    strncpy(backward_quotes, &buffer[used_len-depth], sizeof(backward_quotes));
+    /* TC_IOT_LOG_TRACE("quotes=%s", backward_quotes); */
+
+    for (i = 0; i < depth; ++i) {
+        if (backward_quotes[i] != ']' && backward_quotes[i] != '}') {
+            TC_IOT_LOG_ERROR("buffer end quote invalid: %s", buffer);
+            return TC_IOT_INVALID_PARAMETER;
+        }
     }
 
     // {..., "sub_dev":[... {"device_list":[ ... ]}]}
     // backward to here                          ^
-    used_len -= backward;
-    buffer_left = buffer_len - used_len;
-    if (buffer[used_len-1] != '{'  && buffer[used_len-1] != '[') {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left, ",");
-        used_len++;
-        buffer_left--;
+    pos = &buffer[used_len-depth];
+    buffer_left = buffer_len - used_len + depth;
+    if ( pos[-1] != '{'  && pos[-1] != '[') {
+        ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                  ",");
+        if (ret <= 0) {
+            TC_IOT_LOG_ERROR("buffer overflow");
+            return TC_IOT_BUFFER_OVERFLOW;
+        }
+        write_bytes += ret;
+        pos += ret;
+    }
+
+    if (name) {
+        ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                  "\"%s\":", name);
+        if (ret <= 0) {
+            TC_IOT_LOG_ERROR("buffer overflow");
+            return TC_IOT_BUFFER_OVERFLOW;
+        }
+        write_bytes += ret;
+        pos += ret;
+    } else {
+        /* TC_IOT_LOG_TRACE("name is null, skip write name"); */
     }
 
     if (!value) {
-        ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left, "\"%s\":null%s", name, backward_quotes);
+        ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                  "null%s", backward_quotes);
+        if (ret <= 0) {
+            TC_IOT_LOG_ERROR("buffer overflow");
+            return TC_IOT_BUFFER_OVERFLOW;
+        }
+        write_bytes += ret;
+        pos += ret;
     } else {
         switch(type) {
         case TC_IOT_SHADOW_TYPE_BOOL:
-            ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                      "\"%s\":%d%s", name, *(tc_iot_shadow_bool *)value,  backward_quotes);
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "%d%s", *(tc_iot_shadow_bool *)value,  backward_quotes);
             break;
         case TC_IOT_SHADOW_TYPE_NUMBER:
-            ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                      "\"%s\":%f%s", name, *(tc_iot_shadow_number *)value,  backward_quotes);
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "%f%s", *(tc_iot_shadow_number *)value,  backward_quotes);
             break;
         case TC_IOT_SHADOW_TYPE_ENUM:
-            ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                      "\"%s\":%d%s", name, *(tc_iot_shadow_enum *)value,  backward_quotes);
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "%d%s", *(tc_iot_shadow_enum *)value,  backward_quotes);
             break;
         case TC_IOT_SHADOW_TYPE_INT:
-            ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                      "\"%s\":%d%s", name, *(tc_iot_shadow_int *)value,  backward_quotes);
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "%d%s", *(tc_iot_shadow_int *)value,  backward_quotes);
+            break;
+        case TC_IOT_SHADOW_TYPE_UINT:
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "%u%s", *(tc_iot_shadow_uint *)value,  backward_quotes);
             break;
         case TC_IOT_SHADOW_TYPE_STRING:
-            ret = tc_iot_hal_snprintf(buffer+used_len, buffer_left,
-                                      "\"%s\":\"%s\"%s", name, (tc_iot_shadow_string)value,  backward_quotes);
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "\"%s\"%s", (tc_iot_shadow_string)value,  backward_quotes);
+            break;
+        case TC_IOT_SHADOW_TYPE_ARRAY:
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "[%s]%s", (tc_iot_shadow_string)value,  backward_quotes);
+            break;
+        case TC_IOT_SHADOW_TYPE_OBJECT:
+            ret = tc_iot_hal_snprintf(pos, buffer_left-write_bytes,
+                                      "{%s}%s", (tc_iot_shadow_string)value,  backward_quotes);
             break;
         default:
             TC_IOT_LOG_ERROR("type=%d invalid", type);
         }
     }
 
-    if (ret < buffer_left) {
-        buffer[used_len+ret] = '\0';
-    } else {
+    if (ret <= 0) {
+        TC_IOT_LOG_ERROR("buffer overflow");
         return TC_IOT_BUFFER_OVERFLOW;
     }
-    return ret - 2;
+    write_bytes += ret;
+    pos += ret;
+
+    if (write_bytes < buffer_left) {
+        *pos  = '\0';
+    } else {
+        TC_IOT_LOG_TRACE("write_bytes(%d) < buffer_left(%d)", write_bytes, buffer_left);
+        return TC_IOT_BUFFER_OVERFLOW;
+    }
+    return write_bytes-depth;
 }
+

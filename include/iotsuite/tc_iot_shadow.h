@@ -11,6 +11,7 @@
 
 typedef double tc_iot_shadow_number;
 typedef int tc_iot_shadow_int;
+typedef unsigned int tc_iot_shadow_uint;
 typedef int tc_iot_shadow_enum;
 typedef char tc_iot_shadow_bool;
 typedef char * tc_iot_shadow_string;
@@ -21,7 +22,11 @@ typedef enum _tc_iot_shadow_data_type_e {
     TC_IOT_SHADOW_TYPE_NUMBER = 2,
     TC_IOT_SHADOW_TYPE_ENUM = 3,
     TC_IOT_SHADOW_TYPE_INT = 4,
-    TC_IOT_SHADOW_TYPE_STRING = 5,
+    TC_IOT_SHADOW_TYPE_UINT = 5,
+    TC_IOT_SHADOW_TYPE_STRING = 6,
+
+    TC_IOT_SHADOW_TYPE_OBJECT = 10,
+    TC_IOT_SHADOW_TYPE_ARRAY  = 11,
 } tc_iot_shadow_data_type_e;
 
 typedef struct _tc_iot_shadow_property_def {
