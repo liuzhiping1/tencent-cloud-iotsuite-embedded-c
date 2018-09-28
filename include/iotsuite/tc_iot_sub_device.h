@@ -32,11 +32,12 @@
 	]
 }
  * */
-#define TC_IOT_SUB_DEVICE_ONLINE       "device_online"
+#define TC_IOT_SUB_DEVICE_ONLINE           "device_online"
 
-#define TC_IOT_SUB_DEVICE_OFFLINE       "device_offline"
+#define TC_IOT_SUB_DEVICE_OFFLINE          "device_offline"
 
-#define TC_IOT_SUB_DEVICE_GROUP_UPDATE       "group_update"
+#define TC_IOT_SUB_DEVICE_GROUP_UPDATE     "group_update"
+#define TC_IOT_SUB_DEVICE_GROUP_GET        "group_get"
 
 /*--- end 子设备请求 method 字段取值----*/
 
@@ -105,7 +106,14 @@ int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...);
  */
 int tc_iot_sub_device_offline(tc_iot_gateway_dev * c, int product_count, ...);
 
-void _tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
+void tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
+
+void tc_iot_group_get_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
+
+void tc_iot_device_on_group_message_received(tc_iot_message_data* md);
+int tc_iot_group_doc_parse(tc_iot_shadow_client * p_shadow_client,
+                           tc_iot_json_tokenizer * tokenizer, char * field_buf, int field_buf_len);
+int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_index);
 
 int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int buffer_len, const char * method,message_ack_handler callback, int timeout_ms, void * session_context);
 int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const char * product_id);

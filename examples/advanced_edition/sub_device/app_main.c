@@ -47,6 +47,7 @@ void operate_device(tc_iot_shadow_local_data * p_device_data) {
 void do_sim_data_change(void) {
     int ret = 0;
     char buffer[2024];
+    int buffer_len = sizeof(buffer);
     tc_iot_shadow_client * c = tc_iot_get_shadow_client();
 
     tc_iot_shadow_number number_var=123.456;
@@ -57,11 +58,13 @@ void do_sim_data_change(void) {
     /* tc_iot_shadow_uint seq = 8888; */
     tc_iot_mqtt_message pubmsg;
 
+    goto group_get;
     ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE,
-                                           _tc_iot_group_req_message_ack_callback,
+                                           tc_iot_group_req_message_ack_callback,
                                            10000, NULL);
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
     ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "ammeter_1", 0);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
     ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
 
     /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var); */
@@ -96,6 +99,24 @@ void do_sim_data_change(void) {
     /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
     /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
 
+    pubmsg.payload = buffer;
+    pubmsg.payloadlen = strlen(pubmsg.payload);
+    pubmsg.qos = TC_IOT_QOS1;
+    pubmsg.retained = 0;
+    pubmsg.dup = 0;
+    TC_IOT_LOG_TRACE("[c-s]: %s", (char *)pubmsg.payload);
+    ret = tc_iot_mqtt_client_publish(&(c->mqtt_client), c->p_shadow_config->pub_topic, &pubmsg);
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("ret=%d", ret);
+    } else {
+    }
+
+group_get:
+    ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_GET,
+                                           tc_iot_group_get_message_ack_callback,
+                                           10000, NULL);
+    ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
+    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "ammeter_1", 0);
     pubmsg.payload = buffer;
     pubmsg.payloadlen = strlen(pubmsg.payload);
     pubmsg.qos = TC_IOT_QOS1;
