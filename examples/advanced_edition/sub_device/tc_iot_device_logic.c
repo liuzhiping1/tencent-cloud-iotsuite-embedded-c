@@ -145,6 +145,7 @@ static int _tc_iot_property_change( int property_id, void * data) {
 int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * client,  void * context) {
     tc_iot_shadow_property_def * p_property = NULL;
     tc_iot_message_data * md = NULL;
+    tc_iot_sub_device_event_data * sde = NULL;
 
     if (!msg) {
         TC_IOT_LOG_ERROR("msg is null.");
@@ -166,6 +167,18 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         } else {
             TC_IOT_LOG_ERROR("error notified with code: %d", md->error_code);
         }
+    } else if (msg->event == TC_IOT_SUB_DEV_SEQUENCE_RECEIVED) {
+        sde = (tc_iot_sub_device_event_data *)msg->data;
+        TC_IOT_LOG_TRACE("sequence received: product=%s,device_name=%s,%s=%s",
+                         sde->product_id, sde->device_name, sde->name, sde->value);
+    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL) {
+        sde = (tc_iot_sub_device_event_data *)msg->data;
+        TC_IOT_LOG_TRACE("data point: product=%s,device_name=%s,%s=%s",
+                         sde->product_id, sde->device_name, sde->name, sde->value);
+    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_FINISHED) {
+        sde = (tc_iot_sub_device_event_data *)msg->data;
+        TC_IOT_LOG_TRACE("data point all set: product=%s,device_name=%s",
+                         sde->product_id, sde->device_name);
     } else {
         TC_IOT_LOG_TRACE("unkown event received, event=%d", msg->event);
     }

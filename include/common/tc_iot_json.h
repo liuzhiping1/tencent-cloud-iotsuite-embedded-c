@@ -28,6 +28,7 @@ typedef struct _tc_iot_json_tokenizer {
 
 int tc_iot_json_tokenizer_load(tc_iot_json_tokenizer * tokenizer, const char * json, int json_len, jsmntok_t * tokens, int token_count);
 int tc_iot_json_tokenizer_nth_child(tc_iot_json_tokenizer * tokenizer, int parent_index, int nth);
+int tc_iot_json_tokenizer_nth_child_value(char * value, int value_len, tc_iot_json_tokenizer * tokenizer, int parent_index, int nth);
 int tc_iot_json_tokenizer_find_child(tc_iot_json_tokenizer * tokenizer, int parent_index, const char * child, char * result, int result_len);
 jsmntok_t * tc_iot_json_tokenizer_get_token(tc_iot_json_tokenizer * tokenizer, int index);
 const char * tc_iot_json_tokenizer_get_str_start(tc_iot_json_tokenizer * tokenizer, int index);

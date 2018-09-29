@@ -50,54 +50,56 @@ void do_sim_data_change(void) {
     int buffer_len = sizeof(buffer);
     tc_iot_shadow_client * c = tc_iot_get_shadow_client();
 
-    tc_iot_shadow_number number_var=123.456;
-    tc_iot_shadow_int int_var=12345678;
-    tc_iot_shadow_enum enum_var = 3;
-    tc_iot_shadow_bool bool_var = 1;
-    tc_iot_shadow_string str_var = "Wonderful world.";
+    tc_iot_shadow_bool metadata = 0; // no metadta
+    tc_iot_shadow_number numtest=2.1;
+    tc_iot_shadow_enum enumtest = 1;
+    tc_iot_shadow_bool booltest = 1;
+    tc_iot_shadow_string str_var = "Wond.";
     /* tc_iot_shadow_uint seq = 8888; */
     tc_iot_mqtt_message pubmsg;
 
-    goto group_get;
+    bool desired = true;
+
+    /* goto group_get; */
     ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE,
                                            tc_iot_group_req_message_ack_callback,
                                            10000, NULL);
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
-    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "ammeter_1", 0);
+    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "hxb_ammeter_1", 0);
     ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
-    ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
+    if (desired) {
+        ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
+    } else {
+        ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
+    }
 
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, &int_var); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  &enum_var); */
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_test",TC_IOT_SHADOW_TYPE_BOOL,  &bool_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, str_var);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  &enumtest);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_test",TC_IOT_SHADOW_TYPE_BOOL,  &booltest);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &numtest);
 
     /* ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired"); */
 
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
 
     /* ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-abcd002"); */
     /* ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "device002", 0); */
     /* ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported"); */
 
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, str_var); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, &int_var); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  &enum_var); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  &bool_var); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, str_var); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  &enumtest); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  &booltest); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var); */
 
     /* ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired"); */
 
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "string_var", TC_IOT_SHADOW_TYPE_STRING, NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "int_var", TC_IOT_SHADOW_TYPE_INT, NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enum_var",TC_IOT_SHADOW_TYPE_ENUM,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_var",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "number_var",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
 
     pubmsg.payload = buffer;
     pubmsg.payloadlen = strlen(pubmsg.payload);
@@ -111,12 +113,12 @@ void do_sim_data_change(void) {
     } else {
     }
 
-group_get:
     ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_GET,
                                            tc_iot_group_get_message_ack_callback,
                                            10000, NULL);
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
-    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "ammeter_1", 0);
+    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "hxb_ammeter_1", 0);
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 1, "metadata" ,TC_IOT_SHADOW_TYPE_BOOL, &metadata);
     pubmsg.payload = buffer;
     pubmsg.payloadlen = strlen(pubmsg.payload);
     pubmsg.qos = TC_IOT_QOS1;
@@ -169,7 +171,7 @@ int main(int argc, char** argv) {
         tc_iot_hal_printf("username & password using: %s %s\n", p_client_config->device_info.username, p_client_config->device_info.password);
     }
 
-    ret = tc_iot_gateway_construct(tc_iot_get_shadow_client(), &g_tc_iot_shadow_config);
+    ret = tc_iot_shadow_construct(tc_iot_get_shadow_client(), &g_tc_iot_shadow_config);
     if (ret != TC_IOT_SUCCESS) {
         tc_iot_hal_printf("tc_iot_server_init failed, trouble shooting guide: " "%s#%d\n", TC_IOT_TROUBLE_SHOOTING_URL, ret);
         return 0;
@@ -182,14 +184,14 @@ int main(int argc, char** argv) {
 
     do_sim_data_change();
     while (!stop) {
-        tc_iot_gateway_yield(tc_iot_get_shadow_client(), 200);
+        tc_iot_shadow_yield(tc_iot_get_shadow_client(), 200);
     }
 
     /* ret = tc_iot_sub_device_offline(tc_iot_get_shadow_client(), 2, */
     /*                                "iot-product01",1,"device_001", */
     /*                                 "iot-product02",2,"device_001","device_002"); */
 
-    tc_iot_gateway_destroy(tc_iot_get_shadow_client());
+    tc_iot_shadow_destroy(tc_iot_get_shadow_client());
     return 0;
 }
 

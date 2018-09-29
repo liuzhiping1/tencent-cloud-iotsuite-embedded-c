@@ -49,13 +49,12 @@ typedef struct _tc_iot_sub_device_info {
 } tc_iot_sub_device_info;
 
 
-typedef tc_iot_shadow_client tc_iot_gateway_dev;
-typedef tc_iot_shadow_config tc_iot_gateway_config;
-
-#define tc_iot_gateway_construct(gateway, config) tc_iot_shadow_construct(gateway,config)
-#define tc_iot_gateway_destroy(gateway) tc_iot_shadow_destroy(gateway)
-#define tc_iot_gateway_yield(gateway, timeout_ms) tc_iot_shadow_yield(gateway, timeout_ms)
-
+typedef struct _tc_iot_sub_device_event_data {
+    const char * product_id;
+    const char * device_name;
+    const char * name;
+    const char * value;
+}tc_iot_sub_device_event_data;
 
 /**
  * @brief 子设备批量上线，调用方式样例：
@@ -79,7 +78,7 @@ typedef tc_iot_shadow_config tc_iot_gateway_config;
  * @return 结果返回码
  * @see tc_iot_sys_code_e
  */
-int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...);
+int tc_iot_sub_device_online(tc_iot_shadow_client * c, int product_count, ...);
 
 
 /**
@@ -104,18 +103,18 @@ int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...);
  * @return 结果返回码
  * @see tc_iot_sys_code_e
  */
-int tc_iot_sub_device_offline(tc_iot_gateway_dev * c, int product_count, ...);
+int tc_iot_sub_device_offline(tc_iot_shadow_client * c, int product_count, ...);
 
 void tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
 
 void tc_iot_group_get_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
 
 void tc_iot_device_on_group_message_received(tc_iot_message_data* md);
-int tc_iot_group_doc_parse(tc_iot_shadow_client * p_shadow_client,
-                           tc_iot_json_tokenizer * tokenizer, char * field_buf, int field_buf_len);
-int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_index);
+int tc_iot_group_doc_parse(tc_iot_shadow_client * p_shadow_client, tc_iot_json_tokenizer * tokenizer);
+int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tokenizer, int product_index);
 
-int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int buffer_len, const char * method,message_ack_handler callback, int timeout_ms, void * session_context);
+int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len,
+                                     const char * method, message_ack_handler callback, int timeout_ms, void * session_context);
 int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const char * product_id);
 int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name, unsigned int sequence);
 int tc_iot_sub_device_group_doc_add_state_holder(char * buffer, int buffer_len, const char * state_holder);

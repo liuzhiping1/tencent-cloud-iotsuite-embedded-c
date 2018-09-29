@@ -78,7 +78,7 @@ void tc_iot_group_get_message_ack_callback(tc_iot_command_ack_status_e ack_statu
     tc_iot_device_on_group_message_received(md);
 }
 
-int tc_iot_sub_device_group_req(tc_iot_gateway_dev * c,
+int tc_iot_sub_device_group_req(tc_iot_shadow_client * c,
                                 char * buffer, int buffer_len,
                                 const char * method, int product_count, va_list args,
                                 message_ack_handler callback, int timeout_ms, void * session_context) {
@@ -181,7 +181,7 @@ int tc_iot_sub_device_group_req(tc_iot_gateway_dev * c,
     return w->pos;
 }
 
-int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...) {
+int tc_iot_sub_device_online(tc_iot_shadow_client * c, int product_count, ...) {
     va_list args;
     int ret = 0;
     char buffer[2024]; // TODO calc length
@@ -199,7 +199,7 @@ int tc_iot_sub_device_online(tc_iot_gateway_dev * c, int product_count, ...) {
     return ret;
 }
 
-int tc_iot_sub_device_offline(tc_iot_gateway_dev * c, int product_count, ...) {
+int tc_iot_sub_device_offline(tc_iot_shadow_client * c, int product_count, ...) {
     va_list args;
     int ret = 0;
     char buffer[2024]; // TODO calc length
@@ -217,7 +217,7 @@ int tc_iot_sub_device_offline(tc_iot_gateway_dev * c, int product_count, ...) {
     return ret;
 }
 
-int tc_iot_sub_device_group_doc_init(tc_iot_gateway_dev * c, char * buffer, int buffer_len,
+int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len,
                                      const char * method,
                                      message_ack_handler callback,
                                      int timeout_ms, void * session_context) {
@@ -445,17 +445,17 @@ int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int dept
 void tc_iot_device_on_group_message_received(tc_iot_message_data* md) {
     tc_iot_json_tokenizer t, *tokenizer;
     jsmntok_t  json_token[TC_IOT_MAX_JSON_TOKEN_COUNT];
-    char field_buf[1025];
+    char field_buf[TC_IOT_MAX_FIELD_LEN];
     int field_index = 0;
     int ret = 0;
     tc_iot_mqtt_message* message = md->message;
-    tc_iot_shadow_client * p_shadow_client = TC_IOT_CONTAINER_OF(md->mqtt_client, tc_iot_shadow_client, mqtt_client);
+    tc_iot_shadow_client * c = TC_IOT_CONTAINER_OF(md->mqtt_client, tc_iot_shadow_client, mqtt_client);
 
     tokenizer = &t;
 
     TC_IOT_LOG_TRACE("[s->c] %s", (char*)message->payload);
     if (md->error_code != TC_IOT_SUCCESS) {
-        ret = tc_iot_shadow_event_notify(p_shadow_client, TC_IOT_MQTT_EVENT_ERROR_NOTIFY, md, NULL);
+        ret = tc_iot_shadow_event_notify(c, TC_IOT_MQTT_EVENT_ERROR_NOTIFY, md, NULL);
         return;
     }
 
@@ -473,17 +473,16 @@ void tc_iot_device_on_group_message_received(tc_iot_message_data* md) {
         return ;
     }
 
-    if (strncmp("group_contrl", field_buf, strlen(field_buf)) == 0) {
+    if (strncmp("group_control", field_buf, strlen(field_buf)) == 0) {
         TC_IOT_LOG_TRACE("Control data receved.");
     } else if (strncmp(TC_IOT_MQTT_METHOD_REPLY, field_buf, strlen(field_buf)) == 0) {
         TC_IOT_LOG_TRACE("Reply pack recevied.");
     }
 
-    tc_iot_group_doc_parse(p_shadow_client, tokenizer, field_buf, sizeof(field_buf));
+    tc_iot_group_doc_parse(c, tokenizer);
 }
 
-int tc_iot_group_doc_parse(tc_iot_shadow_client * p_shadow_client,
-                           tc_iot_json_tokenizer * tokenizer, char * buffer, int buffer_len) {
+int tc_iot_group_doc_parse(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tokenizer) {
 
     const char * subdev_start = NULL;
     int subdev_len = 0;
@@ -508,14 +507,16 @@ int tc_iot_group_doc_parse(tc_iot_shadow_client * p_shadow_client,
                 TC_IOT_LOG_ERROR("find %dth child failed, product_index=%d", i, product_index);
                 return TC_IOT_FAILURE;
             }
-            tc_iot_group_control_process(tokenizer, product_index);
+            tc_iot_group_control_process(c, tokenizer, product_index);
         }
     }
 
     return TC_IOT_SUCCESS;
 }
 
-int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_index) {
+int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tokenizer, int product_index) {
+    char buffer[1024]; /* TODO: MACRO */
+    int buffer_len = sizeof(buffer);
     int ret = 0;
     int j = 0;
     int k = 0;
@@ -538,10 +539,18 @@ int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_
     jsmntok_t * desired_node = NULL;
     int desired_index = 0;
 
-    unsigned int seq = 0;
+    int data_point_index = 0;
+
     char product_id[TC_IOT_MAX_PRODUCT_ID_LEN]; /**< 设备 Product Id*/
     char device_name[TC_IOT_MAX_DEVICE_NAME_LEN];  /**< 设备 Device Name*/
+    char data_point_name[65]; // /* TODO: MACRO */
+    tc_iot_sub_device_event_data event_data;
 
+
+    event_data.product_id = product_id;
+    event_data.device_name = device_name;
+    event_data.name = NULL;
+    event_data.value = NULL;
 
     product_node = tc_iot_json_tokenizer_get_token(tokenizer,product_index);
     product_start = tc_iot_json_tokenizer_get_str_start(tokenizer,product_index);
@@ -574,7 +583,7 @@ int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_
         device_node = tc_iot_json_tokenizer_get_token(tokenizer,device_index);
         device_start = tc_iot_json_tokenizer_get_str_start(tokenizer,device_index);
         device_len = tc_iot_json_tokenizer_get_str_len(tokenizer,device_index);
-        TC_IOT_LOG_TRACE("device found, size=%d,data:%s", device_node->size, tc_iot_log_summary_string(device_start, device_len));
+        TC_IOT_LOG_TRACE("device found, size=%d, data:%s", device_node->size, tc_iot_log_summary_string(device_start, device_len));
 
         ret  = tc_iot_json_tokenizer_find_child(tokenizer, device_index, "dev_name", device_name, sizeof(device_name));
         if (ret <= 0) {
@@ -583,9 +592,18 @@ int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_
         }
         TC_IOT_LOG_TRACE("device_name=%s", device_name);
 
+        ret  = tc_iot_json_tokenizer_find_child(tokenizer, device_index, "sequence", buffer, buffer_len);
+        if (ret <= 0) {
+            TC_IOT_LOG_ERROR("find child [sequence] failed, device_index=%d", device_index);
+            return TC_IOT_FAILURE;
+        }
+        event_data.name = "sequence";
+        event_data.value = buffer;
+        ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SEQUENCE_RECEIVED, &event_data, NULL);
+
         desired_index  = tc_iot_json_tokenizer_find_child(tokenizer,
-                                                tc_iot_json_tokenizer_find_child(tokenizer, device_index, "state", NULL, 0),
-                                                "desired", device_name, sizeof(device_name));
+                                                          tc_iot_json_tokenizer_find_child(tokenizer, device_index, "state", NULL, 0),
+                                                          "desired", NULL, 0);
         if (desired_index <= 0) {
             TC_IOT_LOG_ERROR("find child [state.desired] failed, device_index=%d", device_index);
             return TC_IOT_FAILURE;
@@ -595,5 +613,31 @@ int tc_iot_group_control_process(tc_iot_json_tokenizer * tokenizer, int product_
         desired_start = tc_iot_json_tokenizer_get_str_start(tokenizer,desired_index);
         desired_len = tc_iot_json_tokenizer_get_str_len(tokenizer,desired_index);
         TC_IOT_LOG_TRACE("desired found, size=%d,data:%s", desired_node->size, tc_iot_log_summary_string(desired_start, desired_len));
+
+        event_data.name = data_point_name;
+        event_data.value = buffer;
+        for (k = 0; k < desired_node->size; k++) {
+
+            data_point_index = tc_iot_json_tokenizer_nth_child_value(data_point_name, sizeof(data_point_name),
+                                                                     tokenizer, desired_index, k);
+            if (data_point_index <= 0) {
+                TC_IOT_LOG_ERROR("find %dth child failed, data_point_index=%d", k, data_point_index);
+                return TC_IOT_FAILURE;
+            }
+
+            ret = tc_iot_json_tokenizer_nth_child_value(buffer, buffer_len,
+                                                        tokenizer, data_point_index, 0);
+            if (ret <= 0) {
+                TC_IOT_LOG_ERROR("find 0th child failed, ret=%d", ret);
+                return TC_IOT_FAILURE;
+            }
+
+            ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL, &event_data, NULL);
+        }
+        event_data.name = NULL;
+        event_data.value = NULL;
+        ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL_FINISHED, &event_data, NULL);
     }
+
+    return TC_IOT_SUCCESS;
 }
