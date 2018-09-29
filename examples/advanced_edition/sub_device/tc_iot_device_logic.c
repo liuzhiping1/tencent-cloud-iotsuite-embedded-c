@@ -169,16 +169,21 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         }
     } else if (msg->event == TC_IOT_SUB_DEV_SEQUENCE_RECEIVED) {
         sde = (tc_iot_sub_device_event_data *)msg->data;
-        TC_IOT_LOG_TRACE("sequence received: product=%s,device_name=%s,%s=%s",
+        TC_IOT_LOG_TRACE("-----sequence received: product=%s,device_name=%s,%s=%s------",
                          sde->product_id, sde->device_name, sde->name, sde->value);
-    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL) {
+    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE) {
         sde = (tc_iot_sub_device_event_data *)msg->data;
-        TC_IOT_LOG_TRACE("data point: product=%s,device_name=%s,%s=%s",
+        TC_IOT_LOG_TRACE("%s/%s:%s=%s",
                          sde->product_id, sde->device_name, sde->name, sde->value);
-    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_FINISHED) {
+    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE_FINISHED) {
         sde = (tc_iot_sub_device_event_data *)msg->data;
-        TC_IOT_LOG_TRACE("data point all set: product=%s,device_name=%s",
+        TC_IOT_LOG_TRACE("-----device control finished: product=%s,device_name=%s---",
                          sde->product_id, sde->device_name);
+    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_PRODUCT_FINISHED) {
+        sde = (tc_iot_sub_device_event_data *)msg->data;
+        TC_IOT_LOG_TRACE("product control finished: product=%s", sde->product_id);
+    } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_ALL_FINISHED) {
+        TC_IOT_LOG_TRACE("all control finished.");
     } else {
         TC_IOT_LOG_TRACE("unkown event received, event=%d", msg->event);
     }

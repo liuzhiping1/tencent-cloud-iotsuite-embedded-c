@@ -46,6 +46,8 @@ typedef struct _tc_iot_sub_device_info {
     char product_id[TC_IOT_MAX_PRODUCT_ID_LEN]; /**< 设备 Product Id*/
     char device_name[TC_IOT_MAX_DEVICE_NAME_LEN];  /**< 设备 Device Name*/
     char device_secret[TC_IOT_MAX_SECRET_LEN];  /**< 设备签名秘钥*/
+    int property_total;
+    tc_iot_shadow_property_def * properties;
 } tc_iot_sub_device_info;
 
 
@@ -113,12 +115,14 @@ void tc_iot_device_on_group_message_received(tc_iot_message_data* md);
 int tc_iot_group_doc_parse(tc_iot_shadow_client * p_shadow_client, tc_iot_json_tokenizer * tokenizer);
 int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tokenizer, int product_index);
 
-int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len,
-                                     const char * method, message_ack_handler callback, int timeout_ms, void * session_context);
+int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len, const char * method);
 int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const char * product_id);
 int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const char * device_name, unsigned int sequence);
 int tc_iot_sub_device_group_doc_add_state_holder(char * buffer, int buffer_len, const char * state_holder);
 int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int depth, const char * name,
                                          tc_iot_shadow_data_type_e type , const void * value);
+int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int buffer_len,
+                                     message_ack_handler callback,
+                                    int timeout_ms, void * session_context);
 
 #endif /* TC_IOT_SUB_DEVICE_H */

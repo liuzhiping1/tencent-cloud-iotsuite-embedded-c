@@ -61,9 +61,7 @@ void do_sim_data_change(void) {
     bool desired = true;
 
     /* goto group_get; */
-    ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE,
-                                           tc_iot_group_req_message_ack_callback,
-                                           10000, NULL);
+    ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE);
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
     ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "hxb_ammeter_1", 0);
     ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
@@ -101,31 +99,17 @@ void do_sim_data_change(void) {
     /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
     /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
 
-    pubmsg.payload = buffer;
-    pubmsg.payloadlen = strlen(pubmsg.payload);
-    pubmsg.qos = TC_IOT_QOS1;
-    pubmsg.retained = 0;
-    pubmsg.dup = 0;
-    TC_IOT_LOG_TRACE("[c-s]: %s", (char *)pubmsg.payload);
-    ret = tc_iot_mqtt_client_publish(&(c->mqtt_client), c->p_shadow_config->pub_topic, &pubmsg);
+    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
     } else {
     }
 
-    ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_GET,
-                                           tc_iot_group_get_message_ack_callback,
-                                           10000, NULL);
+    ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_GET);
     ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
     ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "hxb_ammeter_1", 0);
     ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 1, "metadata" ,TC_IOT_SHADOW_TYPE_BOOL, &metadata);
-    pubmsg.payload = buffer;
-    pubmsg.payloadlen = strlen(pubmsg.payload);
-    pubmsg.qos = TC_IOT_QOS1;
-    pubmsg.retained = 0;
-    pubmsg.dup = 0;
-    TC_IOT_LOG_TRACE("[c-s]: %s", (char *)pubmsg.payload);
-    ret = tc_iot_mqtt_client_publish(&(c->mqtt_client), c->p_shadow_config->pub_topic, &pubmsg);
+    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
     } else {

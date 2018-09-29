@@ -217,12 +217,8 @@ int tc_iot_sub_device_offline(tc_iot_shadow_client * c, int product_count, ...) 
     return ret;
 }
 
-int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len,
-                                     const char * method,
-                                     message_ack_handler callback,
-                                     int timeout_ms, void * session_context) {
+int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len, const char * method) {
     int ret;
-    tc_iot_shadow_session * p_session;
     tc_iot_json_writer writer;
     tc_iot_json_writer * w = &writer;
 
@@ -230,18 +226,8 @@ int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, in
     IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
     IF_NULL_RETURN(method, TC_IOT_NULL_POINTER);
 
-    p_session = tc_iot_fetch_session(c);
-    if (!p_session) {
-        TC_IOT_LOG_ERROR("no more empty session.");
-        return TC_IOT_SHADOW_SESSION_NOT_ENOUGH;
-    }
-
     tc_iot_json_writer_open(w, buffer, buffer_len);
     tc_iot_json_writer_string(w ,"method", method);
-
-    tc_iot_json_writer_object_begin(w ,"passthrough");
-    tc_iot_json_writer_string(w ,"sid", p_session->sid);
-    tc_iot_json_writer_object_end(w);
 
     tc_iot_json_writer_array_begin(w ,"sub_dev");
 
@@ -250,15 +236,9 @@ int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, in
     ret = tc_iot_json_writer_close(w);
 
     if (ret <= 0) {
-        TC_IOT_LOG_ERROR("ret=%d", ret);
-        tc_iot_release_session(p_session);
+        TC_IOT_LOG_ERROR("json writer close failed, ret=%d", ret);
         return ret;
     }
-
-    tc_iot_hal_timer_init(&(p_session->timer));
-    tc_iot_hal_timer_countdown_ms(&(p_session->timer), timeout_ms);
-    p_session->handler = callback;
-    p_session->session_context = session_context;
 
     return w->pos;
 }
@@ -435,6 +415,57 @@ int tc_iot_sub_device_group_doc_add_data(char * buffer, int buffer_len, int dept
     return w->pos-depth;
 }
 
+int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int buffer_len,
+                                     message_ack_handler callback,
+                                     int timeout_ms, void * session_context) {
+    int ret = 0;
+    int write_bytes = 0;
+    tc_iot_shadow_session * p_session;
+    tc_iot_mqtt_message pubmsg;
+
+    IF_NULL_RETURN(c, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
+
+    p_session = tc_iot_fetch_session(c);
+    if (!p_session) {
+        TC_IOT_LOG_ERROR("no more empty session.");
+        return TC_IOT_SHADOW_SESSION_NOT_ENOUGH;
+    }
+
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 1, "passthrough", TC_IOT_SHADOW_TYPE_OBJECT,  "");
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("add passthrough failed, ret=%d", ret);
+        return ret;
+    }
+    write_bytes += ret;
+
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 2, "sid", TC_IOT_SHADOW_TYPE_STRING,  p_session->sid);
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("add sid failed, ret=%d", ret);
+        return ret;
+    }
+    write_bytes += ret;
+
+    tc_iot_hal_timer_init(&(p_session->timer));
+    tc_iot_hal_timer_countdown_ms(&(p_session->timer), timeout_ms);
+    p_session->handler = callback;
+    p_session->session_context = session_context;
+
+    pubmsg.payload = buffer;
+    pubmsg.payloadlen = strlen(pubmsg.payload);
+    pubmsg.qos = TC_IOT_QOS1;
+    pubmsg.retained = 0;
+    pubmsg.dup = 0;
+    TC_IOT_LOG_TRACE("[c-s]: %s", (char *)pubmsg.payload);
+    ret = tc_iot_mqtt_client_publish(&(c->mqtt_client), c->p_shadow_config->pub_topic, &pubmsg);
+    if (TC_IOT_SUCCESS != ret) {
+        TC_IOT_LOG_ERROR("tc_iot_mqtt_client_publish failed, return=%d", ret);
+    }
+
+
+    return ret;
+}
+
 
 /**
  * @brief 数据回调，处理 group_get 获取最新状态，或
@@ -489,7 +520,6 @@ int tc_iot_group_doc_parse(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tok
     jsmntok_t * subdev_node = NULL;
     int subdev_index = 0;
     int product_index = 0;
-
     int i = 0;
 
     /* 检查 desired 字段是否存在 */
@@ -509,6 +539,7 @@ int tc_iot_group_doc_parse(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tok
             }
             tc_iot_group_control_process(c, tokenizer, product_index);
         }
+        tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL_ALL_FINISHED, NULL, NULL);
     }
 
     return TC_IOT_SUCCESS;
@@ -632,12 +663,15 @@ int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer
                 return TC_IOT_FAILURE;
             }
 
-            ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL, &event_data, NULL);
+            ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE, &event_data, NULL);
         }
         event_data.name = NULL;
         event_data.value = NULL;
-        ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL_FINISHED, &event_data, NULL);
+        ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE_FINISHED, &event_data, NULL);
     }
+
+    event_data.device_name = NULL;
+    ret =  tc_iot_shadow_event_notify(c, TC_IOT_SUB_DEV_SERVER_CONTROL_PRODUCT_FINISHED, &event_data, NULL);
 
     return TC_IOT_SUCCESS;
 }

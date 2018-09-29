@@ -514,7 +514,6 @@ int tc_iot_json_tokenizer_get_child_count(tc_iot_json_tokenizer * tokenizer, int
 int tc_iot_json_tokenizer_nth_child_value(char * value, int value_len, tc_iot_json_tokenizer * tokenizer, int parent_index, int nth) {
     const char * child_start = NULL;
     int child_len = 0;
-    jsmntok_t * child_node = NULL;
     int child_index = 0;
 
     child_index = tc_iot_json_tokenizer_nth_child(tokenizer, parent_index, nth);
@@ -523,7 +522,6 @@ int tc_iot_json_tokenizer_nth_child_value(char * value, int value_len, tc_iot_js
         return child_index;
     }
 
-    child_node = tc_iot_json_tokenizer_get_token(tokenizer,child_index);
     child_start = tc_iot_json_tokenizer_get_str_start(tokenizer,child_index);
     child_len = tc_iot_json_tokenizer_get_str_len(tokenizer,child_index);
     if (child_len >= value_len) {
