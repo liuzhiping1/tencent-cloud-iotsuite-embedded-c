@@ -1,5 +1,6 @@
 #include "tc_iot_device_config.h"
 #include "tc_iot_device_logic.h"
+#include "tc_iot_sub_device_logic.h"
 #include "tc_iot_export.h"
 
 
@@ -40,52 +41,6 @@ void operate_device(tc_iot_shadow_local_data * p_device_data) {
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 }
 
-/* 数据模板本地存储结构定义 local data struct define */
-typedef struct _tc_iot_shadow_local_data_01 {
-    tc_iot_shadow_bool booltest;
-    tc_iot_shadow_enum enumtest;
-    tc_iot_shadow_number numtest;
-    char stringtest[8+1];
-}tc_iot_shadow_local_data_01;
-
-#define TC_IOT_PROP_booltest 0
-#define TC_IOT_PROP_enumtest 1
-#define TC_IOT_PROP_numtest 2
-#define TC_IOT_PROP_stringtest 3
-
-tc_iot_shadow_local_data g_tc_iot_device_local_data_01 = {
-    false,
-    0,
-    2,
-    ""
-};
-
-tc_iot_shadow_local_data g_tc_iot_device_local_data_02 = {
-    false,
-    0,
-    2,
-    ""
-};
-
-tc_iot_shadow_local_data g_tc_iot_device_local_data_03 = {
-    false,
-    0,
-    2,
-    ""
-};
-
-tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_01[] = {
-    { "booltest", TC_IOT_PROP_booltest, TC_IOT_SHADOW_TYPE_BOOL, offsetof(tc_iot_shadow_local_data_01, booltest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,booltest) },
-    { "enumtest", TC_IOT_PROP_enumtest, TC_IOT_SHADOW_TYPE_ENUM, offsetof(tc_iot_shadow_local_data_01, enumtest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,enumtest) },
-    { "numtest", TC_IOT_PROP_numtest, TC_IOT_SHADOW_TYPE_NUMBER, offsetof(tc_iot_shadow_local_data_01, numtest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,numtest) },
-    { "stringtest", TC_IOT_PROP_stringtest, TC_IOT_SHADOW_TYPE_STRING, offsetof(tc_iot_shadow_local_data_01, stringtest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,stringtest) },
-};
-
-tc_iot_sub_device_info g_tc_iot_sub_devices[] = {
-    {"iot-nsg5vbok","hxb_ammeter_1","device_sec_001", {0}, {0}, TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_01),&g_tc_iot_shadow_property_defs_01[0], &g_tc_iot_device_local_data_01},
-    {"iot-nsg5vbok","hxb_ammeter_2","device_sec_002", {0}, {0}, TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_01),&g_tc_iot_shadow_property_defs_01[0], &g_tc_iot_device_local_data_02},
-    {"iot-nsg5vbok","hxb_ammeter_3","device_sec_003", {0}, {0}, TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_01),&g_tc_iot_shadow_property_defs_01[0], &g_tc_iot_device_local_data_03},
-};
 
 /**
  * @brief 本函数演示，当设备端状态发生变化时，如何更新设备端数据，并上报给服务端。
