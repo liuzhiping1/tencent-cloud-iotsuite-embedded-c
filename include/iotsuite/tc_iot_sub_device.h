@@ -41,13 +41,18 @@
 
 /*--- end 子设备请求 method 字段取值----*/
 
+#define TC_IOT_GROUP_DOC_PRODUCT_DEPTH   2
+#define TC_IOT_GROUP_DOC_DEVICE_DEPTH    4
 
 typedef struct _tc_iot_sub_device_info {
     char product_id[TC_IOT_MAX_PRODUCT_ID_LEN]; /**< 设备 Product Id*/
     char device_name[TC_IOT_MAX_DEVICE_NAME_LEN];  /**< 设备 Device Name*/
     char device_secret[TC_IOT_MAX_SECRET_LEN];  /**< 设备签名秘钥*/
+    char desired_bits[(TC_IOT_MAX_PROPERTY_COUNT/8)+1];
+    char reported_bits[(TC_IOT_MAX_PROPERTY_COUNT/8)+1];
     int property_total;
     tc_iot_shadow_property_def * properties;
+    void * p_data;
 } tc_iot_sub_device_info;
 
 

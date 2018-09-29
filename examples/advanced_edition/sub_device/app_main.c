@@ -40,74 +40,119 @@ void operate_device(tc_iot_shadow_local_data * p_device_data) {
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
 }
 
+/* 数据模板本地存储结构定义 local data struct define */
+typedef struct _tc_iot_shadow_local_data_01 {
+    tc_iot_shadow_bool booltest;
+    tc_iot_shadow_enum enumtest;
+    tc_iot_shadow_number numtest;
+    char stringtest[8+1];
+}tc_iot_shadow_local_data_01;
+
+#define TC_IOT_PROP_booltest 0
+#define TC_IOT_PROP_enumtest 1
+#define TC_IOT_PROP_numtest 2
+#define TC_IOT_PROP_stringtest 3
+
+tc_iot_shadow_local_data g_tc_iot_device_local_data_01 = {
+    false,
+    0,
+    2,
+    ""
+};
+
+tc_iot_shadow_local_data g_tc_iot_device_local_data_02 = {
+    false,
+    0,
+    2,
+    ""
+};
+
+tc_iot_shadow_local_data g_tc_iot_device_local_data_03 = {
+    false,
+    0,
+    2,
+    ""
+};
+
+tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_01[] = {
+    { "booltest", TC_IOT_PROP_booltest, TC_IOT_SHADOW_TYPE_BOOL, offsetof(tc_iot_shadow_local_data_01, booltest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,booltest) },
+    { "enumtest", TC_IOT_PROP_enumtest, TC_IOT_SHADOW_TYPE_ENUM, offsetof(tc_iot_shadow_local_data_01, enumtest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,enumtest) },
+    { "numtest", TC_IOT_PROP_numtest, TC_IOT_SHADOW_TYPE_NUMBER, offsetof(tc_iot_shadow_local_data_01, numtest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,numtest) },
+    { "stringtest", TC_IOT_PROP_stringtest, TC_IOT_SHADOW_TYPE_STRING, offsetof(tc_iot_shadow_local_data_01, stringtest),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_01,stringtest) },
+};
+
+tc_iot_sub_device_info g_tc_iot_sub_devices[] = {
+    {"iot-nsg5vbok","hxb_ammeter_1","device_sec_001", {0}, {0}, TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_01),&g_tc_iot_shadow_property_defs_01[0], &g_tc_iot_device_local_data_01},
+    {"iot-nsg5vbok","hxb_ammeter_2","device_sec_002", {0}, {0}, TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_01),&g_tc_iot_shadow_property_defs_01[0], &g_tc_iot_device_local_data_02},
+    {"iot-nsg5vbok","hxb_ammeter_3","device_sec_003", {0}, {0}, TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_01),&g_tc_iot_shadow_property_defs_01[0], &g_tc_iot_device_local_data_03},
+};
 
 /**
  * @brief 本函数演示，当设备端状态发生变化时，如何更新设备端数据，并上报给服务端。
  */
-void do_sim_data_change(void) {
+void do_report(void) {
     int ret = 0;
+    int i = 0;
+    int j = 0;
     char buffer[2024];
     int buffer_len = sizeof(buffer);
     tc_iot_shadow_client * c = tc_iot_get_shadow_client();
+    tc_iot_sub_device_info * sub_device = NULL;
 
-    tc_iot_shadow_bool metadata = 0; // no metadta
-    tc_iot_shadow_number numtest=2.1;
-    tc_iot_shadow_enum enumtest = 1;
-    tc_iot_shadow_bool booltest = 1;
-    tc_iot_shadow_string str_var = "Wond.";
-    /* tc_iot_shadow_uint seq = 8888; */
-    tc_iot_mqtt_message pubmsg;
+    tc_iot_shadow_property_def * property = NULL;
 
     bool desired = true;
 
-    /* goto group_get; */
     ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE);
-    ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
-    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "hxb_ammeter_1", 0);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
-    if (desired) {
-        ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
-    } else {
-        ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
+
+    for (i = 0; i < TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices); i++) {
+        sub_device = g_tc_iot_sub_devices+i;
+        if ( i == 0 || strcmp(sub_device->product_id, g_tc_iot_sub_devices[i-1].product_id) != 0) {
+            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+        }
+        ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
+        ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
+        if (desired) {
+            ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
+        } else {
+            ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
+        }
+        for (j = 0; j < sub_device->property_total;j++) {
+            property = &sub_device->properties[j];
+            ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0,
+                                                       property->name, property->type, (char *)sub_device->p_data + property->offset);
+        }
     }
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, str_var);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  &enumtest);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_test",TC_IOT_SHADOW_TYPE_BOOL,  &booltest);
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &numtest);
-
-    /* ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired"); */
-
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
-
-    /* ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-abcd002"); */
-    /* ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "device002", 0); */
-    /* ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported"); */
-
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, str_var); */
     /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  &enumtest); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  &booltest); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &number_var); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_test",TC_IOT_SHADOW_TYPE_BOOL,  &booltest); */
+    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &numtest); */
 
-    /* ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired"); */
-
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "stringtest", TC_IOT_SHADOW_TYPE_STRING, NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "booltest",TC_IOT_SHADOW_TYPE_BOOL,  NULL); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  NULL); */
-
-    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
+    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_get_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
     } else {
     }
+}
+
+void do_get(void) {
+    int ret = 0;
+    char buffer[2024];
+    int buffer_len = sizeof(buffer);
+    tc_iot_shadow_client * c = tc_iot_get_shadow_client();
+    int i = 0;
+    tc_iot_sub_device_info * sub_device = NULL;
+
+    tc_iot_shadow_bool metadata = 0;
 
     ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_GET);
-    ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), "iot-nsg5vbok");
-    ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), "hxb_ammeter_1", 0);
+    for (i = 0; i < TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices); i++) {
+        sub_device = g_tc_iot_sub_devices+i;
+        if ( i == 0 || strcmp(sub_device->product_id, g_tc_iot_sub_devices[i-1].product_id) != 0) {
+            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+        }
+        ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
+    }
     ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 1, "metadata" ,TC_IOT_SHADOW_TYPE_BOOL, &metadata);
     ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
     if (ret < 0) {
@@ -166,7 +211,8 @@ int main(int argc, char** argv) {
     /*                                "iot-product02",2,"device_001", "device_sec1","device_002", "device_sec2"); */
 
 
-    do_sim_data_change();
+    do_get();
+    do_report();
     while (!stop) {
         tc_iot_shadow_yield(tc_iot_get_shadow_client(), 200);
     }
@@ -178,4 +224,3 @@ int main(int argc, char** argv) {
     tc_iot_shadow_destroy(tc_iot_get_shadow_client());
     return 0;
 }
-

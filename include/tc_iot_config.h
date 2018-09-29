@@ -5,7 +5,11 @@
 
 
 /* buffer 长度的倍数因子, 当属性太多json太长的时候, 一些buffer长度需要增加, 可以设置成 2 , 4 ,8 等数值 */
+#if defined(ENABLE_SUB_DEVICE)
+#define BUF_MULTIPLE 			(8)
+#else
 #define BUF_MULTIPLE 			(1)
+#endif
 
 #define TC_IOT_SDK_VERSION     "2.8"
 

@@ -247,7 +247,7 @@ int tc_iot_sub_device_group_doc_add_product(char * buffer, int buffer_len, const
     int ret = 0;
     int write_bytes = 0;
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 2, NULL ,TC_IOT_SHADOW_TYPE_OBJECT, "");
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, TC_IOT_GROUP_DOC_PRODUCT_DEPTH, NULL ,TC_IOT_SHADOW_TYPE_OBJECT, "");
     if (ret < 0) {
         TC_IOT_LOG_ERROR("product=%s, ret=%d", product_id, ret);
         return ret;
@@ -273,7 +273,7 @@ int tc_iot_sub_device_group_doc_add_device(char * buffer, int buffer_len, const 
     int ret = 0;
     int write_bytes = 0;
 
-    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 0, NULL ,TC_IOT_SHADOW_TYPE_OBJECT, "");
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, TC_IOT_GROUP_DOC_DEVICE_DEPTH, NULL ,TC_IOT_SHADOW_TYPE_OBJECT, "");
     if (ret < 0) {
         TC_IOT_LOG_ERROR("device_name=%s, ret=%d",device_name, ret);
         return ret;
@@ -508,6 +508,8 @@ void tc_iot_device_on_group_message_received(tc_iot_message_data* md) {
         TC_IOT_LOG_TRACE("Control data receved.");
     } else if (strncmp(TC_IOT_MQTT_METHOD_REPLY, field_buf, strlen(field_buf)) == 0) {
         TC_IOT_LOG_TRACE("Reply pack recevied.");
+    } else {
+        TC_IOT_LOG_ERROR("method=%s unkown", field_buf);
     }
 
     tc_iot_group_doc_parse(c, tokenizer);
