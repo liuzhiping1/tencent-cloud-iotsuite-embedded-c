@@ -131,21 +131,18 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
                                     int timeout_ms, void * session_context);
 
 // struct for member data
+
 #define TC_IOT_LOCAL_STRUCT_NAME(name) tc_iot_shadow_local_data_ ## name
 #define TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(name) g_tc_iot_shadow_local_data_ ## name
-#define TC_IOT_DECLARE_LOCAL_MEMBER_BOOL(member) tc_iot_shadow_bool m_ ## member;
-#define TC_IOT_DECLARE_LOCAL_MEMBER_ENUM(member) tc_iot_shadow_enum m_ ## member;
-#define TC_IOT_DECLARE_LOCAL_MEMBER_NUMBER(member) tc_iot_shadow_number m_ ## member;
-#define TC_IOT_DECLARE_LOCAL_MEMBER_STRING(member,len) char m_ ## member[len+1];
+#define TC_IOT_DECLARE_LOCAL_MEMBER_BOOL(member) tc_iot_shadow_bool m_ ## member
+#define TC_IOT_DECLARE_LOCAL_MEMBER_ENUM(member) tc_iot_shadow_enum m_ ## member
+#define TC_IOT_DECLARE_LOCAL_MEMBER_NUMBER(member) tc_iot_shadow_number m_ ## member
+#define TC_IOT_DECLARE_LOCAL_MEMBER_STRING(member,len) char m_ ## member[len+1]
 #define TC_IOT_LOCAL_STRUCT_MEMBER_NAME(member) m_ ## member
-#define TC_IOT_LOCAL_STRUCT_BEGIN(name) typedef struct _tc_iot_shadow_local_data_ ## name {
-#define TC_IOT_LOCAL_STRUCT_END(name) }  tc_iot_shadow_local_data_ ## name;
 
 // for member id
-#define TC_IOT_LOCAL_MEMBER_ID_BEGIN(name) typedef enum _tc_iot_shadow_local_enum_ ## name {
-#define TC_IOT_DECLARE_LOCAL_MEMBER(product, member)  TC_IOT_PROP_ ## product ## _ ## member,
+#define TC_IOT_LOCAL_ENUM_NAME(product) tc_iot_shadow_local_enum_ ## product
 #define TC_IOT_LOCAL_MEMBER_ID(product, member) TC_IOT_PROP_ ## product ## _ ## member
-#define TC_IOT_LOCAL_MEMBER_ID_END(product) TC_IOT_PROP_ ## product  ## TOTAL}  tc_iot_shadow_local_enum_ ## product;
 #define TC_IOT_LOCAL_MEMBER_TOTAL(product) TC_IOT_PROP_ ## product ## TOTAL
 #define TC_IOT_DECLARE_LOCAL_MEMBER_DEF(product,member,type) {      \
     #member, TC_IOT_PROP_ ## product ## _ ## member, type,offsetof(tc_iot_shadow_local_data_ ##product, m_ ##member), \
