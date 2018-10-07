@@ -38,6 +38,7 @@
 
 #define TC_IOT_SUB_DEVICE_GROUP_UPDATE     "group_update"
 #define TC_IOT_SUB_DEVICE_GROUP_GET        "group_get"
+#define TC_IOT_SUB_DEVICE_GROUP_DELETE     "group_delete"
 
 /*--- end 子设备请求 method 字段取值----*/
 
@@ -53,6 +54,7 @@ typedef struct _tc_iot_sub_device_info {
     int property_total;
     tc_iot_shadow_property_def * properties;
     void * p_data;
+    unsigned int sequence;
 } tc_iot_sub_device_info;
 
 
@@ -130,24 +132,24 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
                                      message_ack_handler callback,
                                     int timeout_ms, void * session_context);
 
-// struct for member data
-
+// struct for member data begin
 #define TC_IOT_LOCAL_STRUCT_NAME(name) tc_iot_shadow_local_data_ ## name
 #define TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(name) g_tc_iot_shadow_local_data_ ## name
-#define TC_IOT_DECLARE_LOCAL_MEMBER_BOOL(member) tc_iot_shadow_bool m_ ## member
-#define TC_IOT_DECLARE_LOCAL_MEMBER_ENUM(member) tc_iot_shadow_enum m_ ## member
-#define TC_IOT_DECLARE_LOCAL_MEMBER_NUMBER(member) tc_iot_shadow_number m_ ## member
-#define TC_IOT_DECLARE_LOCAL_MEMBER_STRING(member,len) char m_ ## member[len+1]
-#define TC_IOT_LOCAL_STRUCT_MEMBER_NAME(member) m_ ## member
+// struct for member data end
 
-// for member id
+// for member id begin
 #define TC_IOT_LOCAL_ENUM_NAME(product) tc_iot_shadow_local_enum_ ## product
 #define TC_IOT_LOCAL_MEMBER_ID(product, member) TC_IOT_PROP_ ## product ## _ ## member
 #define TC_IOT_LOCAL_MEMBER_TOTAL(product) TC_IOT_PROP_ ## product ## TOTAL
 #define TC_IOT_DECLARE_LOCAL_MEMBER_DEF(product,member,type) {      \
-    #member, TC_IOT_PROP_ ## product ## _ ## member, type,offsetof(tc_iot_shadow_local_data_ ##product, m_ ##member), \
-        TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_ ##product, m_ ##member) \
-} \
+    #member, TC_IOT_PROP_ ## product ## _ ## member, type,offsetof(tc_iot_shadow_local_data_ ##product, member), \
+        TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_ ##product, member) \
+}
+// for member id end
+
+
+int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 
 
 #endif /* TC_IOT_SUB_DEVICE_H */

@@ -6,10 +6,10 @@
 
 /* 数据模板本地存储结构定义 local data struct define */
 typedef struct {
-    TC_IOT_DECLARE_LOCAL_MEMBER_BOOL(booltest);
-    TC_IOT_DECLARE_LOCAL_MEMBER_ENUM(enumtest);
-    TC_IOT_DECLARE_LOCAL_MEMBER_NUMBER(numtest);
-    TC_IOT_DECLARE_LOCAL_MEMBER_STRING(stringtest,64);
+    tc_iot_shadow_bool booltest;
+    tc_iot_shadow_enum enumtest;
+    tc_iot_shadow_number numtest;
+    char stringtest[64+1];
 } TC_IOT_LOCAL_STRUCT_NAME(test);
 
 typedef enum {
@@ -21,9 +21,9 @@ typedef enum {
 } TC_IOT_LOCAL_ENUM_NAME(test);
 
 typedef struct {
-    TC_IOT_DECLARE_LOCAL_MEMBER_BOOL(booltest);
-    TC_IOT_DECLARE_LOCAL_MEMBER_ENUM(enumtest);
-    TC_IOT_DECLARE_LOCAL_MEMBER_NUMBER(numtest);
+    tc_iot_shadow_bool booltest;
+    tc_iot_shadow_enum enumtest;
+    tc_iot_shadow_number numtest;
 } TC_IOT_LOCAL_STRUCT_NAME(more);
 
 typedef enum {
@@ -41,4 +41,12 @@ extern TC_IOT_LOCAL_STRUCT_NAME(test) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(test)[
 tc_iot_sub_device_info g_tc_iot_sub_devices[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
 tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_test[TC_IOT_LOCAL_MEMBER_TOTAL(test)];
 
+tc_iot_sub_device_info * tc_iot_sub_device_info_find(const char * product_id,
+                                                     const char * device_name);
+tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(const char * product_id,
+                                                                  const char * device_name,
+                                                                  const char * field_name);
+tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(const char * product_id,
+                                                                 const char * device_name,
+                                                                 const char * field_name);
 #endif /* TC_IOT_SUB_DEVICE_LOGIC_H */

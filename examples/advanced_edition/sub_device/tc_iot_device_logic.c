@@ -1,5 +1,6 @@
 #include "tc_iot_device_config.h"
 #include "tc_iot_device_logic.h"
+#include "tc_iot_sub_device_logic.h"
 #include "tc_iot_export.h"
 
 int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * client,  void * context);
@@ -146,6 +147,7 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
     tc_iot_shadow_property_def * p_property = NULL;
     tc_iot_message_data * md = NULL;
     tc_iot_sub_device_event_data * sde = NULL;
+    tc_iot_sub_device_info * sub_device = NULL;
 
     if (!msg) {
         TC_IOT_LOG_ERROR("msg is null.");
@@ -171,10 +173,16 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         sde = (tc_iot_sub_device_event_data *)msg->data;
         TC_IOT_LOG_TRACE("-----sequence received: product=%s,device_name=%s,%s=%s------",
                          sde->product_id, sde->device_name, sde->name, sde->value);
+        sub_device = tc_iot_sub_device_info_find(sde->product_id, sde->device_name);
+        if (sub_device) {
+            sub_device->sequence = tc_iot_try_parse_uint(sde->value, NULL);
+        }
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE) {
         sde = (tc_iot_sub_device_event_data *)msg->data;
         TC_IOT_LOG_TRACE("%s/%s:%s=%s",
                          sde->product_id, sde->device_name, sde->name, sde->value);
+        tc_iot_sub_device_info_set_reported_bits(sde->product_id, sde->device_name, sde->name);
+        tc_iot_sub_device_info_set_desired_bits(sde->product_id, sde->device_name, sde->name);
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE_FINISHED) {
         sde = (tc_iot_sub_device_event_data *)msg->data;
         TC_IOT_LOG_TRACE("-----device control finished: product=%s,device_name=%s---",
@@ -184,6 +192,8 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         TC_IOT_LOG_TRACE("product control finished: product=%s", sde->product_id);
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_ALL_FINISHED) {
         TC_IOT_LOG_TRACE("all control finished.");
+        tc_iot_confirm_sub_device(client, g_tc_iot_sub_devices, TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
+        tc_iot_report_sub_device(client, g_tc_iot_sub_devices,  TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
     } else {
         TC_IOT_LOG_TRACE("unkown event received, event=%d", msg->event);
     }

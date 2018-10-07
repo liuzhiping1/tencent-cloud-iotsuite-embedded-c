@@ -122,6 +122,30 @@ int tc_iot_try_parse_int(const char * str, int * num_char_count) {
     return result;
 }
 
+unsigned int tc_iot_try_parse_uint(const char * str, int * num_char_count) {
+    unsigned int result = 0;
+    int count = 0;
+
+    if (num_char_count) {
+        *num_char_count = 0;
+    }
+
+    if (!str) {
+        return 0;
+    }
+    while(*str >= '0' && *str <= '9') {
+        count++;
+        result = result*10 + (*str - '0');
+        str++;
+    }
+
+    if (num_char_count) {
+        *num_char_count = count;
+    }
+
+    return result;
+}
+
 
 int tc_iot_try_parse_hex(const char * str, int * num_char_count) {
     int result = 0;

@@ -46,48 +46,18 @@ void operate_device(tc_iot_shadow_local_data * p_device_data) {
  * @brief 本函数演示，当设备端状态发生变化时，如何更新设备端数据，并上报给服务端。
  */
 void do_report(void) {
-    int ret = 0;
     int i = 0;
     int j = 0;
-    char buffer[2024];
-    int buffer_len = sizeof(buffer);
+    tc_iot_sub_device_info * current = &g_tc_iot_sub_devices[0];
     tc_iot_shadow_client * c = tc_iot_get_shadow_client();
-    tc_iot_sub_device_info * sub_device = NULL;
 
-    tc_iot_shadow_property_def * property = NULL;
-
-    bool desired = true;
-
-    ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_UPDATE);
-
-    for (i = 0; i < TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices); i++) {
-        sub_device = g_tc_iot_sub_devices+i;
-        if ( i == 0 || strcmp(sub_device->product_id, g_tc_iot_sub_devices[i-1].product_id) != 0) {
-            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
-        }
-        ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
-        ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
-        if (desired) {
-            ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
-        } else {
-            ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
-        }
-        for (j = 0; j < sub_device->property_total;j++) {
-            property = &sub_device->properties[j];
-            ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0,
-                                                       property->name, property->type, (char *)sub_device->p_data + property->offset);
+    for (i = 0; i < TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices); ++i, ++current) {
+        for (j = 0; j < current->property_total; ++j) {
+            TC_IOT_BIT_SET(current->reported_bits, j);
         }
     }
 
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "enumtest",TC_IOT_SHADOW_TYPE_ENUM,  &enumtest); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "bool_test",TC_IOT_SHADOW_TYPE_BOOL,  &booltest); */
-    /* ret = tc_iot_sub_device_group_doc_add_data(buffer, sizeof(buffer), 0, "numtest",TC_IOT_SHADOW_TYPE_NUMBER,  &numtest); */
-
-    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_get_message_ack_callback, 10000, NULL);
-    if (ret < 0) {
-        TC_IOT_LOG_ERROR("ret=%d", ret);
-    } else {
-    }
+    tc_iot_report_sub_device(c, g_tc_iot_sub_devices, TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
 }
 
 void do_get(void) {
@@ -109,7 +79,7 @@ void do_get(void) {
         ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
     }
     ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, 1, "metadata" ,TC_IOT_SHADOW_TYPE_BOOL, &metadata);
-    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
+    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_get_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
     } else {
