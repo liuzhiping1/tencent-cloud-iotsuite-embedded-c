@@ -125,7 +125,7 @@ int tc_iot_sub_device_group_req(tc_iot_shadow_client * c,
     tc_iot_json_writer_string(w ,"sid", p_session->sid);
     tc_iot_json_writer_object_end(w);
 
-    tc_iot_json_writer_array_begin(w ,"sub_dev_state");
+    tc_iot_json_writer_array_begin(w ,"sub_dev");
 
     for (i = 0; i < product_count; ++i) {
         product_id = va_arg(args, const char *);
@@ -739,7 +739,7 @@ int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info *
                                                      sub_device->device_name,
                                                      sub_device->sequence);
         ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
-        ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "delete");
+        ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "desired");
         for (j = 0; j < sub_device->property_total;j++) {
             property = &sub_device->properties[j];
             if (TC_IOT_BIT_GET(sub_device->desired_bits, j)) {

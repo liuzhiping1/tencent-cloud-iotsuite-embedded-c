@@ -192,8 +192,8 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         TC_IOT_LOG_TRACE("product control finished: product=%s", sde->product_id);
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_ALL_FINISHED) {
         TC_IOT_LOG_TRACE("all control finished.");
-        tc_iot_confirm_sub_device(client, g_tc_iot_sub_devices, TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
         tc_iot_report_sub_device(client, g_tc_iot_sub_devices,  TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
+        tc_iot_confirm_sub_device(client, g_tc_iot_sub_devices, TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
     } else {
         TC_IOT_LOG_TRACE("unkown event received, event=%d", msg->event);
     }

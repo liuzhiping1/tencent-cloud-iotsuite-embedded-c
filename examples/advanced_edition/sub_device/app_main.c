@@ -131,20 +131,16 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    /* ret = tc_iot_sub_device_online(tc_iot_get_shadow_client(), 2, */
-    /*                                "iot-product01",1,"device_001", "device_sec1", */
-    /*                                "iot-product02",2,"device_001", "device_sec1","device_002", "device_sec2"); */
-
+    ret = tc_iot_sub_device_online(tc_iot_get_shadow_client(), 1, "iot-01xpm66k",1,"test", "c433d66a26d659e4f68bdebf4f2d7987");
 
     do_get();
-    do_report();
+    /* do_report(); */
     while (!stop) {
         tc_iot_shadow_yield(tc_iot_get_shadow_client(), 200);
     }
 
-    /* ret = tc_iot_sub_device_offline(tc_iot_get_shadow_client(), 2, */
-    /*                                "iot-product01",1,"device_001", */
-    /*                                 "iot-product02",2,"device_001","device_002"); */
+    ret = tc_iot_sub_device_offline(tc_iot_get_shadow_client(), 1,
+                                   "iot-01xpm66k",1,"test");
 
     tc_iot_shadow_destroy(tc_iot_get_shadow_client());
     return 0;

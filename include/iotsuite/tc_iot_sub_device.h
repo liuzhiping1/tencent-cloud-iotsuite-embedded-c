@@ -58,6 +58,12 @@ typedef struct _tc_iot_sub_device_info {
 } tc_iot_sub_device_info;
 
 
+typedef struct _tc_io_sub_device_table{
+    int total;
+    int used;
+    tc_iot_sub_device_info * items;
+} tc_iot_sub_device_table;
+
 typedef struct _tc_iot_sub_device_event_data {
     const char * product_id;
     const char * device_name;

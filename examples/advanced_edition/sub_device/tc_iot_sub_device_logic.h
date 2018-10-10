@@ -41,8 +41,7 @@ extern TC_IOT_LOCAL_STRUCT_NAME(test) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(test)[
 tc_iot_sub_device_info g_tc_iot_sub_devices[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
 tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_test[TC_IOT_LOCAL_MEMBER_TOTAL(test)];
 
-tc_iot_sub_device_info * tc_iot_sub_device_info_find(const char * product_id,
-                                                     const char * device_name);
+tc_iot_sub_device_info * tc_iot_sub_device_info_find(const char * product_id, const char * device_name);
 tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name);
