@@ -42,6 +42,7 @@
 
 /*--- end 子设备请求 method 字段取值----*/
 
+#define TC_IOT_GROUP_DOC_ROOT_DEPTH      1
 #define TC_IOT_GROUP_DOC_PRODUCT_DEPTH   2
 #define TC_IOT_GROUP_DOC_DEVICE_DEPTH    4
 
@@ -71,54 +72,7 @@ typedef struct _tc_iot_sub_device_event_data {
     const char * value;
 }tc_iot_sub_device_event_data;
 
-/**
- * @brief 子设备批量上线，调用方式样例：
- *
- tc_iot_sub_device_online(c,
- 2, // 产品数，表示总共有2个产品有设备要上线。
- "iot-prod_01", // 第1个产品的 Product Id
-    1, // 第1个产品下，总共有1个设备要上线
-    "prodcut_001_device001","prodcut_001_device001_secret", // 第1个设备的名称和密钥
- "iot-prod_02", // 第2个产品的 Product Id
-    2, // 第2个产品下，总共有2个设备要上线
-    "prodcut_002_device001","prodcut_002_device001_secret", // 第1个设备的名称和密钥
-    "prodcut_002_device002","prodcut_002_device002_secret", // 第2个设备的名称和密钥
- );
- *
- * @param c 网关对象
- * @param product_count 上线产品数
- * @param ... 变参格式：
- *            product_id_1, M(设备数), device_001, device_secret_001 ..., device_secret_M,
- *            product_id_2, N(设备数), device_001, device_secret_001 ..., device_secret_N
- * @return 结果返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_sub_device_online(tc_iot_shadow_client * c, int product_count, ...);
-
-
-/**
- * @brief 子设备批量下线，调用方式样例：
- *
- tc_iot_sub_device_offline(c,
- 2, // 产品数，表示总共有2个产品有设备要下线。
- "iot-prod_01", // 第1个产品的 Product Id
-    1, // 第1个产品下，总共有1个设备要下线
-    "prodcut_001_device001", // 第1个设备的名称
- "iot-prod_02", // 第2个产品的 Product Id
-    2, // 第2个产品下，总共有2个设备要下线
-    "prodcut_002_device001", // 第1个设备的名称
-    "prodcut_002_device002", // 第2个设备的名称
- );
- *
- * @param c 网关对象
- * @param product_count 上线产品数
- * @param ... 变参格式：
- *            product_id_1, M(设备数), device_001, ..., device_M,
- *            product_id_2, N(设备数), device_001, ..., device_N
- * @return 结果返回码
- * @see tc_iot_sys_code_e
- */
-int tc_iot_sub_device_offline(tc_iot_shadow_client * c, int product_count, ...);
+int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online);
 
 void tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
 
@@ -157,5 +111,19 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
 int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 
+tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_table * t,
+                                                            const char * product_id,
+                                                            const char * device_name,
+                                                            const char * device_secret,
+                                                            int property_total,
+                                                            tc_iot_shadow_property_def * properties,
+                                                            void * p_data);
+tc_iot_sub_device_info * tc_iot_sub_device_info_find(tc_iot_sub_device_table * t,const char * product_id, const char * device_name);
+tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,const char * product_id,
+                                                                  const char * device_name,
+                                                                  const char * field_name);
+tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,const char * product_id,
+                                                                 const char * device_name,
+                                                                 const char * field_name);
 
 #endif /* TC_IOT_SUB_DEVICE_H */

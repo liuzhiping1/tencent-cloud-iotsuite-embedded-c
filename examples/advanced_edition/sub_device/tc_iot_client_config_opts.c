@@ -1,5 +1,7 @@
 #include "tc_iot_export.h"
 #include "tc_iot_device_config.h"
+#include "tc_iot_sub_device_logic.h"
+#include "tc_iot_device_logic.h"
 #include <getopt.h>
 
 static int _log_level = TC_IOT_LOG_LEVEL_DEBUG;
@@ -18,10 +20,8 @@ static struct option long_options[] =
     {"device",       optional_argument,    0, 'd'},
     {"client",       optional_argument,    0, 'i'},
     {"username",     optional_argument,    0, 'u'},
+    {"add_sub_device",  optional_argument,    0, 'A'},
     {"password",     optional_argument,    0, 'P'},
-    {"cafile",       optional_argument,    0, 'a'},
-    {"clifile",      optional_argument,    0, 'c'},
-    {"clikey",       optional_argument,    0, 'k'},
     {"help",         optional_argument,    0, '?'},
     {0, 0, 0, 0}
 };
@@ -57,6 +57,10 @@ const char * command_help =
 " -s secret\r\n"
 " --secret=secret\r\n"
 "     secret for dynamic token, it not using fixed usename and password.\r\n"
+"\r\n"
+" -A sub_device_product_id,sub_device_name,sub_device_secret\r\n"
+" --add_sub_device=sub_device_product_id,sub_device_name,sub_device_secret\r\n"
+"     add sub device to gateway.\r\n"
 "\r\n"
 " -u username\r\n"
 " --username=username\r\n"
@@ -96,10 +100,15 @@ void parse_command(tc_iot_mqtt_client_config * config, int argc, char ** argv) {
     bool client_id_changed = false;
     int left = 0;
     int i = 0;
+    char buffer[1024];
+    char * pos = NULL;
+    const char * sub_dev_product_id = NULL;
+    const char * sub_dev_device_name = NULL;
+    const char * sub_dev_device_secret = NULL;
 
     while (1)
     {
-        c = getopt_long (argc, argv, "s:h:p:t:d:i:u:P:c:a:k:", long_options, &option_index);
+        c = getopt_long (argc, argv, "s:h:p:t:d:i:u:P:c:a:k:A:", long_options, &option_index);
         if (c == -1) {
             break;
         }
@@ -147,66 +156,107 @@ void parse_command(tc_iot_mqtt_client_config * config, int argc, char ** argv) {
                     tc_iot_hal_printf ("secret=%s\n", optarg);
                 }
                 break;
-            case 'a':
+            case 'A':
                 if (optarg) {
-                    config->p_root_ca = optarg;
-                    tc_iot_hal_printf ("root ca=%s\n", config->p_root_ca);
-                }
-                break;
-            case 'c':
-                if (optarg) {
-                    config->p_client_crt = optarg;
-                    tc_iot_hal_printf ("client crt=%s\n", config->p_client_crt);
-                }
-                break;
-            case 'k':
-                if (optarg) {
-                    config->p_client_key = optarg;
-                    tc_iot_hal_printf ("client key=%s\n", config->p_client_key);
-                }
-                break;
-            case 'u':
-                if (optarg) {
-                    strncpy(config->device_info.username, optarg, TC_IOT_MAX_USER_NAME_LEN);
-                    tc_iot_hal_printf ("username=%s\n", config->device_info.username);
-                    request_token = 0;
-                }
-                break;
-            case 'P':
-                if (optarg) {
-                    strncpy(config->device_info.password, optarg, TC_IOT_MAX_PASSWORD_LEN);
-                    tc_iot_hal_printf ("password=%s\n", config->device_info.password);
-                    request_token = 0;
-                }
-                break;
-            case 't':
-                if (optarg) {
-                    strncpy(config->device_info.product_id, optarg, TC_IOT_MAX_PRODUCT_ID_LEN);
-                    tc_iot_hal_printf ("product id=%s\n", config->device_info.product_id);
-                }
-                break;
-            case 'd':
-                if (optarg) {
-                    strncpy(config->device_info.device_name, optarg, TC_IOT_MAX_DEVICE_NAME_LEN);
-                    device_name_changed = true;
-                    tc_iot_hal_printf ("device name=%s\n", config->device_info.device_name);
-                }
-                break;
-            case 'i':
-                if (optarg) {
-                    client_id_changed = true;
-                    strncpy(config->device_info.client_id, optarg, TC_IOT_MAX_CLIENT_ID_LEN);
-                    tc_iot_hal_printf ("client id=%s\n", config->device_info.client_id);
-                }
-                break;
-	    case '?':
-		tc_iot_hal_printf (command_help, argv[0]);
-                exit(0);
-		break;
+                    strncpy(buffer, optarg, sizeof(buffer));
+                    pos = buffer;
 
-            default:
-                tc_iot_hal_printf("option: %c\n", (char)c);
+                    sub_dev_product_id = pos;
+
+                    while (*pos) {
+                        if (*pos == ',') {
+                            *pos = '\0';
+                            pos++;
+                            sub_dev_device_name = pos;
+                            break;
+                        }
+                        pos++;
+                    }
+                    while (*pos) {
+                        if (*pos == ',') {
+                            *pos = '\0';
+                            pos++;
+                            sub_dev_device_secret = pos;
+                            break;
+                        }
+                        pos++;
+                    }
+                    if (sub_dev_device_secret) {
+                        tc_iot_hal_printf ("sub_device:product_id=%s,device_name=%s,device_secret=%s\n",
+                                        sub_dev_product_id,
+                                        sub_dev_device_name,
+                                        sub_dev_device_secret
+                            );
+                        tc_iot_gateway_register_sub_device(&g_tc_iot_sub_device_table,
+                                                        sub_dev_product_id,
+                                                        sub_dev_device_name,
+                                                        sub_dev_device_secret,
+                                                        TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
+                                                        &g_tc_iot_shadow_property_defs_subdev01[0],
+                                                        &TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(subdev01)[0]);
+                    }
+                }
                 break;
+        case 'a':
+            if (optarg) {
+                config->p_root_ca = optarg;
+                tc_iot_hal_printf ("root ca=%s\n", config->p_root_ca);
+            }
+            break;
+        case 'c':
+            if (optarg) {
+                config->p_client_crt = optarg;
+                tc_iot_hal_printf ("client crt=%s\n", config->p_client_crt);
+            }
+            break;
+        case 'k':
+            if (optarg) {
+                config->p_client_key = optarg;
+                tc_iot_hal_printf ("client key=%s\n", config->p_client_key);
+            }
+            break;
+        case 'u':
+            if (optarg) {
+                strncpy(config->device_info.username, optarg, TC_IOT_MAX_USER_NAME_LEN);
+                tc_iot_hal_printf ("username=%s\n", config->device_info.username);
+                request_token = 0;
+            }
+            break;
+        case 'P':
+            if (optarg) {
+                strncpy(config->device_info.password, optarg, TC_IOT_MAX_PASSWORD_LEN);
+                tc_iot_hal_printf ("password=%s\n", config->device_info.password);
+                request_token = 0;
+            }
+            break;
+        case 't':
+            if (optarg) {
+                strncpy(config->device_info.product_id, optarg, TC_IOT_MAX_PRODUCT_ID_LEN);
+                tc_iot_hal_printf ("product id=%s\n", config->device_info.product_id);
+            }
+            break;
+        case 'd':
+            if (optarg) {
+                strncpy(config->device_info.device_name, optarg, TC_IOT_MAX_DEVICE_NAME_LEN);
+                device_name_changed = true;
+                tc_iot_hal_printf ("device name=%s\n", config->device_info.device_name);
+            }
+            break;
+        case 'i':
+            if (optarg) {
+                client_id_changed = true;
+                strncpy(config->device_info.client_id, optarg, TC_IOT_MAX_CLIENT_ID_LEN);
+                tc_iot_hal_printf ("client id=%s\n", config->device_info.client_id);
+            }
+            break;
+        case '?':
+            tc_iot_hal_printf (command_help, argv[0]);
+            exit(0);
+            break;
+
+        default:
+            tc_iot_hal_printf("option: %c\n", (char)c);
+            break;
         }
     }
 

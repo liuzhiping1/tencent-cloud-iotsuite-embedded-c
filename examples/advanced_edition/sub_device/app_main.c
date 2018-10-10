@@ -48,16 +48,16 @@ void operate_device(tc_iot_shadow_local_data * p_device_data) {
 void do_report(void) {
     int i = 0;
     int j = 0;
-    tc_iot_sub_device_info * current = &g_tc_iot_sub_devices[0];
+    tc_iot_sub_device_info * current = &g_tc_iot_sub_device_table.items[0];
     tc_iot_shadow_client * c = tc_iot_get_shadow_client();
 
-    for (i = 0; i < TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices); ++i, ++current) {
+    for (i = 0; i < g_tc_iot_sub_device_table.used; ++i, ++current) {
         for (j = 0; j < current->property_total; ++j) {
             TC_IOT_BIT_SET(current->reported_bits, j);
         }
     }
 
-    tc_iot_report_sub_device(c, g_tc_iot_sub_devices, TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices));
+    tc_iot_report_sub_device(c,  &g_tc_iot_sub_device_table.items[0], g_tc_iot_sub_device_table.used);
 }
 
 void do_get(void) {
@@ -71,9 +71,9 @@ void do_get(void) {
     tc_iot_shadow_bool metadata = 0;
 
     ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_GROUP_GET);
-    for (i = 0; i < TC_IOT_ARRAY_LENGTH(g_tc_iot_sub_devices); i++) {
-        sub_device = g_tc_iot_sub_devices+i;
-        if ( i == 0 || strcmp(sub_device->product_id, g_tc_iot_sub_devices[i-1].product_id) != 0) {
+    for (i = 0; i < g_tc_iot_sub_device_table.used; i++) {
+        sub_device = &g_tc_iot_sub_device_table.items[i];
+        if ( i == 0 || strcmp(sub_device->product_id, sub_device[-1].product_id) != 0) {
             ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
         }
         ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    ret = tc_iot_sub_device_online(tc_iot_get_shadow_client(), 1, "iot-01xpm66k",1,"test", "c433d66a26d659e4f68bdebf4f2d7987");
+    ret = tc_iot_sub_device_onoff(tc_iot_get_shadow_client(),&g_tc_iot_sub_device_table.items[0],g_tc_iot_sub_device_table.used,true);
 
     do_get();
     /* do_report(); */
@@ -139,8 +139,8 @@ int main(int argc, char** argv) {
         tc_iot_shadow_yield(tc_iot_get_shadow_client(), 200);
     }
 
-    ret = tc_iot_sub_device_offline(tc_iot_get_shadow_client(), 1,
-                                   "iot-01xpm66k",1,"test");
+    ret = tc_iot_sub_device_onoff(tc_iot_get_shadow_client(),&g_tc_iot_sub_device_table.items[0], g_tc_iot_sub_device_table.used,false);
+    ret = tc_iot_shadow_yield(tc_iot_get_shadow_client(), 2000);
 
     tc_iot_shadow_destroy(tc_iot_get_shadow_client());
     return 0;

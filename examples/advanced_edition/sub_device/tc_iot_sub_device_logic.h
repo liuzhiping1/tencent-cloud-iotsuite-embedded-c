@@ -3,6 +3,7 @@
 
 #include "tc_iot_inc.h"
 
+#define TC_IOT_GW_MAX_SUB_DEVICE_COUNT  5
 
 /* 数据模板本地存储结构定义 local data struct define */
 typedef struct {
@@ -10,42 +11,38 @@ typedef struct {
     tc_iot_shadow_enum enumtest;
     tc_iot_shadow_number numtest;
     char stringtest[64+1];
-} TC_IOT_LOCAL_STRUCT_NAME(test);
+} TC_IOT_LOCAL_STRUCT_NAME(subdev01);
 
 typedef enum {
-    TC_IOT_LOCAL_MEMBER_ID(test,booltest),
-    TC_IOT_LOCAL_MEMBER_ID(test,enumtest),
-    TC_IOT_LOCAL_MEMBER_ID(test,numtest),
-    TC_IOT_LOCAL_MEMBER_ID(test,stringtest),
-    TC_IOT_LOCAL_MEMBER_TOTAL(test),
-} TC_IOT_LOCAL_ENUM_NAME(test);
+    TC_IOT_LOCAL_MEMBER_ID(subdev01,booltest),
+    TC_IOT_LOCAL_MEMBER_ID(subdev01,enumtest),
+    TC_IOT_LOCAL_MEMBER_ID(subdev01,numtest),
+    TC_IOT_LOCAL_MEMBER_ID(subdev01,stringtest),
+    TC_IOT_LOCAL_MEMBER_TOTAL(subdev01),
+} TC_IOT_LOCAL_ENUM_NAME(subdev01);
 
-typedef struct {
-    tc_iot_shadow_bool booltest;
-    tc_iot_shadow_enum enumtest;
-    tc_iot_shadow_number numtest;
-} TC_IOT_LOCAL_STRUCT_NAME(more);
+extern TC_IOT_LOCAL_STRUCT_NAME(subdev01) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(subdev01)[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
 
-typedef enum {
-    TC_IOT_LOCAL_MEMBER_ID(more,booltest),
-    TC_IOT_LOCAL_MEMBER_ID(more,enumtest),
-    TC_IOT_LOCAL_MEMBER_ID(more,numtest),
-    TC_IOT_LOCAL_MEMBER_TOTAL(more),
-} TC_IOT_LOCAL_ENUM_NAME(more);
+/* typedef struct { */
+/*     tc_iot_shadow_bool booltest; */
+/*     tc_iot_shadow_enum enumtest; */
+/*     tc_iot_shadow_number numtest; */
+/* } TC_IOT_LOCAL_STRUCT_NAME(more); */
 
-#define TC_IOT_GW_MAX_PRODUCT_COUNT  2
-#define TC_IOT_GW_MAX_SUB_DEVICE_COUNT  5
+/* typedef enum { */
+/*     TC_IOT_LOCAL_MEMBER_ID(more,booltest), */
+/*     TC_IOT_LOCAL_MEMBER_ID(more,enumtest), */
+/*     TC_IOT_LOCAL_MEMBER_ID(more,numtest), */
+/*     TC_IOT_LOCAL_MEMBER_TOTAL(more), */
+/* } TC_IOT_LOCAL_ENUM_NAME(more); */
 
-extern TC_IOT_LOCAL_STRUCT_NAME(test) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(test)[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
+/* extern TC_IOT_LOCAL_STRUCT_NAME(more) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(more)[TC_IOT_GW_MAX_SUB_DEVICE_COUNT]; */
 
-tc_iot_sub_device_info g_tc_iot_sub_devices[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
-tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_test[TC_IOT_LOCAL_MEMBER_TOTAL(test)];
+/* #define TC_IOT_GW_MAX_PRODUCT_COUNT  2 */
 
-tc_iot_sub_device_info * tc_iot_sub_device_info_find(const char * product_id, const char * device_name);
-tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(const char * product_id,
-                                                                  const char * device_name,
-                                                                  const char * field_name);
-tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(const char * product_id,
-                                                                 const char * device_name,
-                                                                 const char * field_name);
+
+/* tc_iot_sub_device_info g_tc_iot_sub_devices[TC_IOT_GW_MAX_SUB_DEVICE_COUNT]; */
+tc_iot_sub_device_table g_tc_iot_sub_device_table;
+tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_subdev01[TC_IOT_LOCAL_MEMBER_TOTAL(subdev01)];
+
 #endif /* TC_IOT_SUB_DEVICE_LOGIC_H */

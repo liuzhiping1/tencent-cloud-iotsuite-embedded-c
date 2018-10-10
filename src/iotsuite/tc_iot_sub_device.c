@@ -78,144 +78,6 @@ void tc_iot_group_get_message_ack_callback(tc_iot_command_ack_status_e ack_statu
     tc_iot_device_on_group_message_received(md);
 }
 
-int tc_iot_sub_device_group_req(tc_iot_shadow_client * c,
-                                char * buffer, int buffer_len,
-                                const char * method, int product_count, va_list args,
-                                message_ack_handler callback, int timeout_ms, void * session_context) {
-    char b64_buf[TC_IOT_BASE64_ENCODE_OUT_LEN(TC_IOT_SHA256_DIGEST_SIZE)];
-    int ret;
-    tc_iot_shadow_session * p_session;
-    tc_iot_json_writer writer;
-    tc_iot_json_writer * w = &writer;
-    int i = 0;
-    int j = 0;
-    tc_iot_mqtt_message pubmsg;
-    const char * pub_topic;
-    unsigned int nonce = 0;
-    unsigned int timestamp = 0;
-    int device_count = 0;
-    const char * product_id;
-    const char * device_name;
-    const char * device_secret;
-    bool is_online = false;
-
-    timestamp = tc_iot_hal_timestamp(NULL);
-
-    IF_NULL_RETURN(c, TC_IOT_NULL_POINTER);
-    IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
-    IF_NULL_RETURN(method, TC_IOT_NULL_POINTER);
-
-    p_session = tc_iot_fetch_session(c);
-    if (!p_session) {
-        TC_IOT_LOG_ERROR("no more empty session.");
-        return TC_IOT_SHADOW_SESSION_NOT_ENOUGH;
-    }
-
-    is_online = strcmp(method, TC_IOT_SUB_DEVICE_ONLINE) == 0;
-
-    tc_iot_json_writer_open(w, buffer, buffer_len);
-    tc_iot_json_writer_string(w ,"method", method);
-
-    tc_iot_json_writer_uint(w ,"timestamp", timestamp);
-    if (is_online) {
-        nonce = tc_iot_hal_random();
-        tc_iot_json_writer_uint(w ,"nonce", nonce);
-    }
-    tc_iot_json_writer_object_begin(w ,"passthrough");
-    tc_iot_json_writer_string(w ,"sid", p_session->sid);
-    tc_iot_json_writer_object_end(w);
-
-    tc_iot_json_writer_array_begin(w ,"sub_dev");
-
-    for (i = 0; i < product_count; ++i) {
-        product_id = va_arg(args, const char *);
-        device_count = va_arg(args, int);
-
-        tc_iot_json_writer_object_begin(w, NULL);
-        tc_iot_json_writer_string(w , "product", product_id);
-        tc_iot_json_writer_array_begin(w ,"device_list");
-        for (j = 0; j < device_count; ++j) {
-            device_name = va_arg(args, const char *);
-            tc_iot_json_writer_object_begin(w, NULL);
-            tc_iot_json_writer_string(w , "dev_name", device_name);
-            if (is_online) {
-                device_secret = va_arg(args, const char *);
-
-                ret = tc_iot_calc_sub_device_online_sign(b64_buf, sizeof(b64_buf), device_secret,
-                                                         device_name, nonce, product_id, timestamp);
-                tc_iot_json_writer_string(w , "sign", b64_buf);
-            }
-            tc_iot_json_writer_object_end(w);
-        }
-        tc_iot_json_writer_array_end(w); // device_list
-        tc_iot_json_writer_object_end(w);
-    }
-
-    tc_iot_json_writer_array_end(w); // sub_dev_state
-
-    ret = tc_iot_json_writer_close(w);
-
-    if (ret <= 0) {
-        TC_IOT_LOG_ERROR("ret=%d", ret);
-        tc_iot_release_session(p_session);
-        return ret;
-    }
-
-    tc_iot_hal_timer_init(&(p_session->timer));
-    tc_iot_hal_timer_countdown_ms(&(p_session->timer), timeout_ms);
-    p_session->handler = callback;
-    p_session->session_context = session_context;
-
-    pubmsg.payload = buffer;
-    pubmsg.payloadlen = strlen(pubmsg.payload);
-    pubmsg.qos = TC_IOT_QOS1;
-    pubmsg.retained = 0;
-    pubmsg.dup = 0;
-    TC_IOT_LOG_TRACE("[c-s]: %s", (char *)pubmsg.payload);
-    pub_topic = c->p_shadow_config->pub_topic;
-    ret = tc_iot_mqtt_client_publish(&(c->mqtt_client), pub_topic, &pubmsg);
-    if (TC_IOT_SUCCESS != ret) {
-        TC_IOT_LOG_ERROR("tc_iot_mqtt_client_publish failed, return=%d", ret);
-    }
-
-    return w->pos;
-}
-
-int tc_iot_sub_device_online(tc_iot_shadow_client * c, int product_count, ...) {
-    va_list args;
-    int ret = 0;
-    char buffer[2024]; // TODO calc length
-
-    va_start(args, product_count);
-    ret = tc_iot_sub_device_group_req( c,
-                                       buffer, sizeof(buffer),
-                                       TC_IOT_SUB_DEVICE_ONLINE, product_count, args,
-                                       tc_iot_group_req_message_ack_callback,
-                                       c->mqtt_client.command_timeout_ms, NULL);
-    va_end(args);
-    if (ret > 0) {
-        ret = TC_IOT_SUCCESS;
-    }
-    return ret;
-}
-
-int tc_iot_sub_device_offline(tc_iot_shadow_client * c, int product_count, ...) {
-    va_list args;
-    int ret = 0;
-    char buffer[2024]; // TODO calc length
-
-    va_start(args, product_count);
-    ret = tc_iot_sub_device_group_req( c,
-                                       buffer, sizeof(buffer),
-                                       TC_IOT_SUB_DEVICE_OFFLINE, product_count, args,
-                                       tc_iot_group_req_message_ack_callback,
-                                       c->mqtt_client.command_timeout_ms, NULL);
-    va_end(args);
-    if (ret > 0) {
-        ret = TC_IOT_SUCCESS;
-    }
-    return ret;
-}
 
 int tc_iot_sub_device_group_doc_init(tc_iot_shadow_client * c, char * buffer, int buffer_len, const char * method) {
     int ret;
@@ -679,6 +541,62 @@ int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer
     return TC_IOT_SUCCESS;
 }
 
+int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online)
+{
+    int ret = 0;
+    int i = 0;
+    char buffer[TC_IOT_CLIENT_SEND_BUF_SIZE];
+    int buffer_len = sizeof(buffer);
+    tc_iot_sub_device_info * sub_device = NULL;
+
+    char b64_buf[TC_IOT_BASE64_ENCODE_OUT_LEN(TC_IOT_SHA256_DIGEST_SIZE)];
+    unsigned int nonce = 0;
+    unsigned int timestamp = 0;
+    const char * product_id;
+    const char * device_name;
+    const char * device_secret;
+
+    timestamp = tc_iot_hal_timestamp(NULL);
+
+
+    if (is_online) {
+        ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_ONLINE);
+        nonce = tc_iot_hal_random();
+    } else {
+        ret = tc_iot_sub_device_group_doc_init(c, buffer, sizeof(buffer), TC_IOT_SUB_DEVICE_OFFLINE);
+    }
+
+    for (i = 0; i < sub_devices_count; i++) {
+        sub_device = sub_devices+i;
+        product_id = sub_device->product_id;
+        if ( i == 0 || strcmp(sub_device->product_id, sub_devices[i-1].product_id) != 0) {
+            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+        }
+
+        device_name = sub_device->device_name;
+        ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
+        if (is_online) {
+            device_secret = sub_device->device_secret;
+
+            ret = tc_iot_calc_sub_device_online_sign(b64_buf, sizeof(b64_buf), device_secret,
+                                                     device_name, nonce, product_id, timestamp);
+            ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "sign", TC_IOT_SHADOW_TYPE_STRING, b64_buf);
+        }
+    }
+
+    ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, TC_IOT_GROUP_DOC_ROOT_DEPTH, "timestamp", TC_IOT_SHADOW_TYPE_UINT,  &timestamp);
+    if (is_online) {
+        ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, TC_IOT_GROUP_DOC_ROOT_DEPTH, "nonce", TC_IOT_SHADOW_TYPE_UINT,  &nonce);
+    }
+
+    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
+    if (ret < 0) {
+        TC_IOT_LOG_ERROR("ret=%d", ret);
+    } else {
+    }
+    return ret;
+}
+
 int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count) {
     int ret = 0;
     int i = 0;
@@ -757,4 +675,111 @@ int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info *
     } else {
     }
     return ret;
+}
+
+tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(
+    tc_iot_sub_device_table * t,
+    const char * product_id,
+    const char * device_name,
+    const char * device_secret,
+    int property_total,
+    tc_iot_shadow_property_def * properties,
+    void * p_data)
+{
+    tc_iot_sub_device_info * sub_device = NULL;
+
+    if (!t) {
+        TC_IOT_LOG_ERROR("t is null");
+        return NULL;
+    }
+
+    if (t->total <= t->used) {
+        TC_IOT_LOG_ERROR("sub device table overflow, total=%d, used=%d",  t->total, t->used);
+        return NULL;
+    }
+    sub_device = &t->items[t->used];
+    memset(sub_device, 0, sizeof(*sub_device));
+    strncpy(sub_device->product_id, product_id, sizeof(sub_device->product_id));
+    strncpy(sub_device->device_name, device_name, sizeof(sub_device->device_name));
+    strncpy(sub_device->device_secret, device_secret, sizeof(sub_device->device_secret));
+    sub_device->property_total = property_total;
+    sub_device->properties = properties;
+    sub_device->p_data = p_data;
+    t->used++;
+
+    return sub_device;
+}
+
+tc_iot_sub_device_info * tc_iot_sub_device_info_find(tc_iot_sub_device_table * t, const char * product_id, const char * device_name)
+{
+    int i = 0;
+    tc_iot_sub_device_info * current = NULL;
+
+    for (i = 0; i < t->used; ++i) {
+        current = &t->items[i];
+        if (strcmp(product_id, current->product_id) == 0
+            && strcmp(device_name, current->device_name) == 0) {
+            return current;
+        }
+    }
+
+    TC_IOT_LOG_ERROR("device not found: product_id=%s,device_name=%s",
+                     product_id, device_name);
+    return NULL;
+}
+
+tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,
+                                                                  const char * product_id,
+                                                                  const char * device_name,
+                                                                  const char * field_name)
+{
+    int i = 0;
+    int property_total;
+    tc_iot_shadow_property_def * properties;
+    tc_iot_sub_device_info * current = tc_iot_sub_device_info_find(t, product_id, device_name);
+
+    if (!current) {
+        return NULL;
+    }
+
+    property_total = current->property_total;
+    properties = current->properties;
+    for (i = 0; i < property_total; ++i, ++properties) {
+        if (strcmp(properties->name, field_name) == 0) {
+            TC_IOT_BIT_SET(current->reported_bits, properties->id);
+            return current;
+        }
+    }
+
+    TC_IOT_LOG_ERROR("device property not found: product_id=%s,device_name=%s, field_name=%s",
+                     product_id, device_name, field_name);
+    return NULL;
+}
+
+tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,
+                                                                 const char * product_id,
+                                                                 const char * device_name,
+                                                                 const char * field_name)
+{
+    int i = 0;
+    int property_total;
+    tc_iot_shadow_property_def * properties;
+    tc_iot_sub_device_info * current = tc_iot_sub_device_info_find(t, product_id, device_name);
+
+    if (!current) {
+        return NULL;
+    }
+
+    property_total = current->property_total;
+    properties = current->properties;
+    for (i = 0; i < property_total; ++i, ++properties) {
+        if (strcmp(properties->name, field_name) == 0) {
+            TC_IOT_BIT_SET(current->desired_bits, properties->id);
+            return current;
+        }
+    }
+
+    TC_IOT_LOG_ERROR("device property not found: product_id=%s,device_name=%s, field_name=%s",
+                     product_id, device_name, field_name);
+    return NULL;
 }
