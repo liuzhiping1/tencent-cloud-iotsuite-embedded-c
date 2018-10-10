@@ -14,6 +14,7 @@ tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_subdev01[] = {
     TC_IOT_DECLARE_LOCAL_MEMBER_DEF(subdev01,enumtest,    TC_IOT_SHADOW_TYPE_ENUM),
     TC_IOT_DECLARE_LOCAL_MEMBER_DEF(subdev01,numtest,     TC_IOT_SHADOW_TYPE_NUMBER),
     TC_IOT_DECLARE_LOCAL_MEMBER_DEF(subdev01,stringtest,  TC_IOT_SHADOW_TYPE_STRING),
+    TC_IOT_DECLARE_LOCAL_MEMBER_DEF(subdev01,Temperature,  TC_IOT_SHADOW_TYPE_NUMBER),
 };
 
 tc_iot_sub_device_info g_tc_iot_sub_devices[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];

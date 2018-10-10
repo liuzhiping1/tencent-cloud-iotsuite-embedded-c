@@ -11,6 +11,7 @@ typedef struct {
     tc_iot_shadow_enum enumtest;
     tc_iot_shadow_number numtest;
     char stringtest[64+1];
+    tc_iot_shadow_number Temperature;
 } TC_IOT_LOCAL_STRUCT_NAME(subdev01);
 
 typedef enum {
@@ -18,6 +19,7 @@ typedef enum {
     TC_IOT_LOCAL_MEMBER_ID(subdev01,enumtest),
     TC_IOT_LOCAL_MEMBER_ID(subdev01,numtest),
     TC_IOT_LOCAL_MEMBER_ID(subdev01,stringtest),
+    TC_IOT_LOCAL_MEMBER_ID(subdev01,Temperature),
     TC_IOT_LOCAL_MEMBER_TOTAL(subdev01),
 } TC_IOT_LOCAL_ENUM_NAME(subdev01);
 

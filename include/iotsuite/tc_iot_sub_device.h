@@ -39,6 +39,7 @@
 #define TC_IOT_SUB_DEVICE_GROUP_UPDATE     "group_update"
 #define TC_IOT_SUB_DEVICE_GROUP_GET        "group_get"
 #define TC_IOT_SUB_DEVICE_GROUP_DELETE     "group_delete"
+#define TC_IOT_SUB_DEVICE_GROUP_CONTROL     "group_control"
 
 /*--- end 子设备请求 method 字段取值----*/
 
@@ -73,9 +74,7 @@ typedef struct _tc_iot_sub_device_event_data {
 }tc_iot_sub_device_event_data;
 
 int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online);
-
 void tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
-
 void tc_iot_group_get_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
 
 void tc_iot_device_on_group_message_received(tc_iot_message_data* md);
@@ -110,6 +109,8 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
 
 int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+bool tc_iot_sub_device_info_need_report(tc_iot_sub_device_info * current);
+bool tc_iot_sub_device_info_need_confirm(tc_iot_sub_device_info * current);
 
 tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_table * t,
                                                             const char * product_id,
@@ -119,10 +120,10 @@ tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_ta
                                                             tc_iot_shadow_property_def * properties,
                                                             void * p_data);
 tc_iot_sub_device_info * tc_iot_sub_device_info_find(tc_iot_sub_device_table * t,const char * product_id, const char * device_name);
-tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,const char * product_id,
+tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name);
-tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,const char * product_id,
+tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,const char * product_id,
                                                                  const char * device_name,
                                                                  const char * field_name);
 

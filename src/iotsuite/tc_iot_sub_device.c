@@ -366,12 +366,17 @@ void tc_iot_device_on_group_message_received(tc_iot_message_data* md) {
         return ;
     }
 
-    if (strncmp("group_control", field_buf, strlen(field_buf)) == 0) {
+    if (strncmp(TC_IOT_SUB_DEVICE_GROUP_CONTROL, field_buf, strlen(field_buf)) == 0) {
         TC_IOT_LOG_TRACE("Control data receved.");
+    } else if (strncmp(TC_IOT_MQTT_METHOD_CONTROL, field_buf, strlen(field_buf)) == 0) {
+        TC_IOT_LOG_TRACE("Control data receved.");
+        tc_iot_device_on_message_received(md);
+        return ;
     } else if (strncmp(TC_IOT_MQTT_METHOD_REPLY, field_buf, strlen(field_buf)) == 0) {
         TC_IOT_LOG_TRACE("Reply pack recevied.");
     } else {
         TC_IOT_LOG_ERROR("method=%s unkown", field_buf);
+        tc_iot_device_on_message_received(md);
         return ;
     }
 
@@ -599,10 +604,12 @@ int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * s
 
 int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count) {
     int ret = 0;
+    int affected_count = 0;
     int i = 0;
     int j = 0;
     char buffer[TC_IOT_CLIENT_SEND_BUF_SIZE];
     int buffer_len = sizeof(buffer);
+    const char * prev_product = "";
     tc_iot_sub_device_info * sub_device = NULL;
 
     tc_iot_shadow_property_def * property = NULL;
@@ -611,9 +618,16 @@ int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * 
 
     for (i = 0; i < sub_devices_count; i++) {
         sub_device = sub_devices+i;
-        if ( i == 0 || strcmp(sub_device->product_id, sub_devices[i-1].product_id) != 0) {
-            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+        if (!tc_iot_sub_device_info_need_report(sub_device)) {
+            continue;
         }
+
+        if ( strcmp(sub_device->product_id, prev_product) != 0) {
+            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+            prev_product = sub_device->product_id;
+        }
+        TC_IOT_LOG_TRACE("product=%s,device_name=%s",  sub_device->product_id, sub_device->device_name);
+        affected_count++;
         ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer), sub_device->device_name, 0);
         ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len , 0, "state", TC_IOT_SHADOW_TYPE_OBJECT, "");
         ret = tc_iot_sub_device_group_doc_add_state_holder(buffer, sizeof(buffer), "reported");
@@ -628,6 +642,11 @@ int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * 
             }
         }
     }
+    if (!affected_count) {
+        TC_IOT_LOG_TRACE("no data need report, skip report.");
+        return TC_IOT_SUCCESS;
+    }
+    TC_IOT_LOG_TRACE("affected count = %d", affected_count);
     ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
@@ -640,8 +659,10 @@ int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info *
     int ret = 0;
     int i = 0;
     int j = 0;
+    int affected_count = 0;
     char buffer[TC_IOT_CLIENT_SEND_BUF_SIZE];
     int buffer_len = sizeof(buffer);
+    const char * prev_product = "";
     tc_iot_sub_device_info * sub_device = NULL;
 
     tc_iot_shadow_property_def * property = NULL;
@@ -650,9 +671,16 @@ int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info *
 
     for (i = 0; i < sub_devices_count; i++) {
         sub_device = sub_devices+i;
-        if ( i == 0 || strcmp(sub_device->product_id, sub_devices[i-1].product_id) != 0) {
-            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+        if (!tc_iot_sub_device_info_need_confirm(sub_device)) {
+            continue;
         }
+
+        if (strcmp(sub_device->product_id, prev_product) != 0) {
+            ret = tc_iot_sub_device_group_doc_add_product(buffer, sizeof(buffer), sub_device->product_id);
+            prev_product = sub_device->product_id;
+        }
+        TC_IOT_LOG_TRACE("product=%s,device_name=%s",  sub_device->product_id, sub_device->device_name);
+        affected_count++;
         ret = tc_iot_sub_device_group_doc_add_device(buffer, sizeof(buffer),
                                                      sub_device->device_name,
                                                      sub_device->sequence);
@@ -669,6 +697,11 @@ int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info *
             }
         }
     }
+    if (!affected_count) {
+        TC_IOT_LOG_TRACE("no data need confirm, skip confirm.");
+        return TC_IOT_SUCCESS;
+    }
+    TC_IOT_LOG_TRACE("affected count = %d", affected_count);
     ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
@@ -707,6 +740,8 @@ tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(
     sub_device->p_data = p_data;
     t->used++;
 
+    TC_IOT_LOG_TRACE("stat:%d/%d,p=%s,n=%s", t->used, t->total, product_id, device_name);
+
     return sub_device;
 }
 
@@ -728,7 +763,7 @@ tc_iot_sub_device_info * tc_iot_sub_device_info_find(tc_iot_sub_device_table * t
     return NULL;
 }
 
-tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,
+tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,
                                                                   const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name)
@@ -747,7 +782,7 @@ tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_dev
     for (i = 0; i < property_total; ++i, ++properties) {
         if (strcmp(properties->name, field_name) == 0) {
             TC_IOT_BIT_SET(current->reported_bits, properties->id);
-            return current;
+            return properties;
         }
     }
 
@@ -756,7 +791,8 @@ tc_iot_sub_device_info * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_dev
     return NULL;
 }
 
-tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,
+
+tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,
                                                                  const char * product_id,
                                                                  const char * device_name,
                                                                  const char * field_name)
@@ -775,11 +811,53 @@ tc_iot_sub_device_info * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_devi
     for (i = 0; i < property_total; ++i, ++properties) {
         if (strcmp(properties->name, field_name) == 0) {
             TC_IOT_BIT_SET(current->desired_bits, properties->id);
-            return current;
+            return properties;
         }
     }
 
     TC_IOT_LOG_ERROR("device property not found: product_id=%s,device_name=%s, field_name=%s",
                      product_id, device_name, field_name);
     return NULL;
+}
+
+bool tc_iot_sub_device_info_need_report(tc_iot_sub_device_info * current)
+{
+    int i = 0;
+    int property_total;
+    tc_iot_shadow_property_def * properties;
+
+    if (!current) {
+        return false;
+    }
+
+    property_total = current->property_total;
+    properties = current->properties;
+    for (i = 0; i < property_total; ++i, ++properties) {
+        if (TC_IOT_BIT_GET(current->reported_bits, properties->id)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool tc_iot_sub_device_info_need_confirm(tc_iot_sub_device_info * current)
+{
+    int i = 0;
+    int property_total;
+    tc_iot_shadow_property_def * properties;
+
+    if (!current) {
+        return false;
+    }
+
+    property_total = current->property_total;
+    properties = current->properties;
+    for (i = 0; i < property_total; ++i, ++properties) {
+        if (TC_IOT_BIT_GET(current->desired_bits, properties->id)) {
+            return true;
+        }
+    }
+
+    return false;
 }

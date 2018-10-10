@@ -77,7 +77,7 @@ tc_iot_shadow_config g_tc_iot_shadow_config = {
     },
     TC_IOT_SHADOW_SUB_TOPIC_DEF,
     TC_IOT_SHADOW_PUB_TOPIC_DEF,
-    tc_iot_device_on_message_received,
+    tc_iot_device_on_group_message_received,
     TC_IOT_PROPTOTAL,
     &g_tc_iot_shadow_property_defs[0],
     _tc_iot_shadow_property_control_callback,
@@ -148,6 +148,7 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
     tc_iot_message_data * md = NULL;
     tc_iot_sub_device_event_data * sde = NULL;
     tc_iot_sub_device_info * sub_device = NULL;
+    void * p_data_start = NULL;
 
     if (!msg) {
         TC_IOT_LOG_ERROR("msg is null.");
@@ -181,7 +182,31 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         sde = (tc_iot_sub_device_event_data *)msg->data;
         TC_IOT_LOG_TRACE("%s/%s:%s=%s",
                          sde->product_id, sde->device_name, sde->name, sde->value);
-        tc_iot_sub_device_info_set_reported_bits(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
+        p_property = tc_iot_sub_device_info_set_reported_bits(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
+        sub_device = tc_iot_sub_device_info_find(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name);
+        if (sub_device && p_property) {
+            p_data_start = (char *)sub_device->p_data+p_property->offset;
+            switch (p_property->type) {
+            case TC_IOT_SHADOW_TYPE_BOOL:
+                *(tc_iot_shadow_bool *)p_data_start = atoi(sde->value);
+                break;
+            case TC_IOT_SHADOW_TYPE_ENUM:
+                *(tc_iot_shadow_enum *)p_data_start = atoi(sde->value);
+                break;
+            case TC_IOT_SHADOW_TYPE_INT:
+                *(tc_iot_shadow_int *)p_data_start = atoi(sde->value);
+                break;
+            case TC_IOT_SHADOW_TYPE_NUMBER:
+                *(tc_iot_shadow_number *)p_data_start = atof(sde->value);
+                break;
+            case TC_IOT_SHADOW_TYPE_STRING:
+                strncpy(p_data_start, sde->value, p_property->len);
+                break;
+            default:
+                TC_IOT_LOG_ERROR("%s type=%d invalid.", p_property->name, p_property->type);
+                break;
+            }
+        }
         tc_iot_sub_device_info_set_desired_bits(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE_FINISHED) {
         sde = (tc_iot_sub_device_event_data *)msg->data;

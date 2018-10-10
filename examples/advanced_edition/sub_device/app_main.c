@@ -140,7 +140,9 @@ int main(int argc, char** argv) {
     }
 
     ret = tc_iot_sub_device_onoff(tc_iot_get_shadow_client(),&g_tc_iot_sub_device_table.items[0], g_tc_iot_sub_device_table.used,false);
-    ret = tc_iot_shadow_yield(tc_iot_get_shadow_client(), 2000);
+    while (tc_iot_shadow_pending_session_count(tc_iot_get_shadow_client()) > 0) {
+        tc_iot_server_loop(tc_iot_get_shadow_client(), 200);
+    }
 
     tc_iot_shadow_destroy(tc_iot_get_shadow_client());
     return 0;
