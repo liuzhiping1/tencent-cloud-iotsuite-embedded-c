@@ -187,7 +187,7 @@ void parse_command(tc_iot_mqtt_client_config * config, int argc, char ** argv) {
                                         sub_dev_device_name,
                                         sub_dev_device_secret
                             );
-                        tc_iot_gateway_register_sub_device(&g_tc_iot_sub_device_table,
+                        tc_iot_sub_device_register(&g_tc_iot_sub_device_table,
                                                         sub_dev_product_id,
                                                         sub_dev_device_name,
                                                         sub_dev_device_secret,

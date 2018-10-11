@@ -625,7 +625,7 @@ int tc_iot_sub_device_onoffline(tc_iot_shadow_client * c, tc_iot_sub_device_info
     return ret;
 }
 
-int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count) {
+int tc_iot_sub_device_report(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count) {
     int ret = 0;
     int affected_count = 0;
     int i = 0;
@@ -678,7 +678,7 @@ int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * 
     return ret;
 }
 
-int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count) {
+int tc_iot_sub_device_confirm(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count) {
     int ret = 0;
     int i = 0;
     int j = 0;
@@ -733,7 +733,7 @@ int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info *
     return ret;
 }
 
-tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(
+tc_iot_sub_device_info * tc_iot_sub_device_register(
     tc_iot_sub_device_table * t,
     const char * product_id,
     const char * device_name,
@@ -786,7 +786,7 @@ tc_iot_sub_device_info * tc_iot_sub_device_info_find(tc_iot_sub_device_table * t
     return NULL;
 }
 
-tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,
+tc_iot_shadow_property_def * tc_iot_sub_device_mark_report_field(tc_iot_sub_device_table * t,
                                                                   const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name)
@@ -815,7 +815,7 @@ tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub
 }
 
 
-tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,
+tc_iot_shadow_property_def * tc_iot_sub_device_mark_confirm_field(tc_iot_sub_device_table * t,
                                                                  const char * product_id,
                                                                  const char * device_name,
                                                                  const char * field_name)

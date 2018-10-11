@@ -122,7 +122,7 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         sde = (tc_iot_sub_device_event_data *)msg->data;
         TC_IOT_LOG_TRACE("%s/%s:%s=%s",
                          sde->product_id, sde->device_name, sde->name, sde->value);
-        p_property = tc_iot_sub_device_info_set_reported_bits(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
+        p_property = tc_iot_sub_device_mark_report_field(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
         sub_device = tc_iot_sub_device_info_find(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name);
         if (sub_device && p_property) {
             p_data_start = (char *)sub_device->p_data+p_property->offset;
@@ -147,7 +147,7 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
                 break;
             }
         }
-        tc_iot_sub_device_info_set_desired_bits(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
+        tc_iot_sub_device_mark_confirm_field(&g_tc_iot_sub_device_table, sde->product_id, sde->device_name, sde->name);
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_DEVICE_FINISHED) {
         sde = (tc_iot_sub_device_event_data *)msg->data;
         TC_IOT_LOG_TRACE("-----device control finished: product=%s,device_name=%s---",
@@ -157,8 +157,8 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
         TC_IOT_LOG_TRACE("product control finished: product=%s", sde->product_id);
     } else if (msg->event == TC_IOT_SUB_DEV_SERVER_CONTROL_ALL_FINISHED) {
         TC_IOT_LOG_TRACE("all control finished.");
-        tc_iot_report_sub_device(client, &g_tc_iot_sub_device_table.items[0],  g_tc_iot_sub_device_table.used);
-        tc_iot_confirm_sub_device(client, &g_tc_iot_sub_device_table.items[0],  g_tc_iot_sub_device_table.used);
+        tc_iot_sub_device_report(client, &g_tc_iot_sub_device_table.items[0],  g_tc_iot_sub_device_table.used);
+        tc_iot_sub_device_confirm(client, &g_tc_iot_sub_device_table.items[0],  g_tc_iot_sub_device_table.used);
     } else {
         TC_IOT_LOG_TRACE("unkown event received, event=%d", msg->event);
     }

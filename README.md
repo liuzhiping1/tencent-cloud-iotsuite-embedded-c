@@ -258,12 +258,12 @@ SDK 常见错误码定义，参见：[tc_iot_const.h](include/common/tc_iot_cons
 |    1 | tc_iot_shadow_construct                  | 构造设备影子或网关对象                       |
 |    2 | tc_iot_shadow_yield                      | 服务任务主循环函数，接收服务推送及响应数据。 |
 |    3 | tc_iot_shadow_destroy                    | 设备影子或网关服务析构处理，释放资源。       |
-|    4 | tc_iot_gateway_register_sub_device       | 向网关注册子设备                             |
+|    4 | tc_iot_sub_device_register       | 向网关注册子设备                             |
 |    5 | tc_iot_sub_device_onoffline              | 对指定范围的子设备，进行上线或下线处理。     |
-|    6 | tc_iot_sub_device_info_set_reported_bits | 标记某个子设备需要上报的数据点。             |
-|    7 | tc_iot_sub_device_info_set_desired_bits  | 标记某个子设备需要确认的数据点。             |
-|    8 | tc_iot_report_sub_device                 | 上报子设备数据                               |
-|    9 | tc_iot_confirm_sub_device                | 确认子设备数据                               |
+|    6 | tc_iot_sub_device_mark_report_field | 标记某个子设备需要上报的数据点。             |
+|    7 | tc_iot_sub_device_mark_confirm_field  | 标记某个子设备需要确认的数据点。             |
+|    8 | tc_iot_sub_device_report                 | 上报子设备数据                               |
+|    9 | tc_iot_sub_device_confirm                | 确认子设备数据                               |
 
 
 

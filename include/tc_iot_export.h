@@ -522,7 +522,7 @@ int tc_iot_refresh_auth_token(long timestamp, long nonce, tc_iot_device_info* p_
  *
  * @return 注册成功子设备信息地址，为 NULL 则表示注册失败。
  */
-tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_table * t,
+tc_iot_sub_device_info * tc_iot_sub_device_register(tc_iot_sub_device_table * t,
                                                             const char * product_id,
                                                             const char * device_name,
                                                             const char * device_secret,
@@ -554,7 +554,7 @@ int tc_iot_sub_device_onoffline(tc_iot_shadow_client * c, tc_iot_sub_device_info
  *
  * @return 字段属性，为 NULL 则表示标记失败。
  */
-tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,
+tc_iot_shadow_property_def * tc_iot_sub_device_mark_report_field(tc_iot_sub_device_table * t,
                                                                   const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name);
@@ -569,7 +569,7 @@ tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub
  *
  * @return 字段属性，为 NULL 则表示标记失败。
  */
-tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,
+tc_iot_shadow_property_def * tc_iot_sub_device_mark_confirm_field(tc_iot_sub_device_table * t,
                                                                   const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name);
@@ -584,7 +584,7 @@ tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_
  * @return 结果返回码
  * @see tc_iot_sys_code_e
  */
-int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+int tc_iot_sub_device_report(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 
 /**
  * @brief 对指定范围的子设备，检查 desired_bits 位域设置，确认对应字段的数据，清除服务端 desired 状态。
@@ -596,7 +596,7 @@ int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * 
  * @return 结果返回码
  * @see tc_iot_sys_code_e
  */
-int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+int tc_iot_sub_device_confirm(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 
 #endif
 

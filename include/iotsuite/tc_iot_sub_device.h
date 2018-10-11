@@ -99,12 +99,12 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
 // for member id end
 
 
-int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
-int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+int tc_iot_sub_device_confirm(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+int tc_iot_sub_device_report(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
 bool tc_iot_sub_device_info_need_report(tc_iot_sub_device_info * current);
 bool tc_iot_sub_device_info_need_confirm(tc_iot_sub_device_info * current);
 
-tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_table * t,
+tc_iot_sub_device_info * tc_iot_sub_device_register(tc_iot_sub_device_table * t,
                                                             const char * product_id,
                                                             const char * device_name,
                                                             const char * device_secret,
@@ -112,10 +112,10 @@ tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_ta
                                                             tc_iot_shadow_property_def * properties,
                                                             void * p_data);
 tc_iot_sub_device_info * tc_iot_sub_device_info_find(tc_iot_sub_device_table * t,const char * product_id, const char * device_name);
-tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,const char * product_id,
+tc_iot_shadow_property_def * tc_iot_sub_device_mark_report_field(tc_iot_sub_device_table * t,const char * product_id,
                                                                   const char * device_name,
                                                                   const char * field_name);
-tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,const char * product_id,
+tc_iot_shadow_property_def * tc_iot_sub_device_mark_confirm_field(tc_iot_sub_device_table * t,const char * product_id,
                                                                  const char * device_name,
                                                                  const char * field_name);
 

@@ -57,7 +57,7 @@ void do_report(void) {
         }
     }
 
-    tc_iot_report_sub_device(c,  &g_tc_iot_sub_device_table.items[0], g_tc_iot_sub_device_table.used);
+    tc_iot_sub_device_report(c,  &g_tc_iot_sub_device_table.items[0], g_tc_iot_sub_device_table.used);
 }
 
 void do_get(void) {
