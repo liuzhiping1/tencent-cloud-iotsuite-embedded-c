@@ -1,5 +1,6 @@
 #include "tc_iot_device_config.h"
 #include "tc_iot_device_logic.h"
+#include "tc_iot_sub_device_logic.h"
 #include "tc_iot_export.h"
 
 int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * client,  void * context);
@@ -68,7 +69,7 @@ tc_iot_shadow_config g_tc_iot_shadow_config = {
     },
     TC_IOT_SHADOW_SUB_TOPIC_DEF,
     TC_IOT_SHADOW_PUB_TOPIC_DEF,
-    tc_iot_device_on_message_received,
+    tc_iot_device_on_group_message_received,
     TC_IOT_PROPTOTAL,
     &g_tc_iot_shadow_property_defs[0],
     _tc_iot_shadow_property_control_callback,
