@@ -148,7 +148,7 @@ char tc_iot_shadow_isconnected(tc_iot_shadow_client *p_shadow_client);
 
 /**
  * @brief tc_iot_shadow_yield 在当前线程为底层服务，让出一定 CPU 执
- * 行时间
+ * 行时间，接收服务推送及响应数据
  *
  * @param  p_shadow_client 设备影子对象
  * @param timeout_ms 等待时延，单位毫秒

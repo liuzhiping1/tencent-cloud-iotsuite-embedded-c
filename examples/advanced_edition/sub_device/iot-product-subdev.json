@@ -35,6 +35,16 @@
             "type": "number"
         },
         {
+            "desc": "number type param",
+            "mode": "rw",
+            "name": "Temperature",
+            "range": [
+                0,
+                4095
+            ],
+            "type": "number"
+        },
+        {
             "desc": "string type param",
             "mode": "rw",
             "name": "param_string",

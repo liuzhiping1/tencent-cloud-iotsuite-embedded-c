@@ -21,6 +21,7 @@ tc_iot_sub_device_table g_tc_iot_sub_device_table = {
 };
 
 
+
 /* 设备本地数据类型及地址、回调函数等相关定义 */
 tc_iot_shadow_property_def g_tc_iot_shadow_property_defs[] = {
     { "param_bool", TC_IOT_PROP_param_bool, TC_IOT_SHADOW_TYPE_BOOL, offsetof(tc_iot_shadow_local_data, param_bool),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data,param_bool) },
@@ -231,4 +232,3 @@ int _tc_iot_shadow_property_control_callback(tc_iot_event_message *msg, void * c
     }
     return TC_IOT_SUCCESS;
 }
-

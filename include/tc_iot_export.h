@@ -145,6 +145,48 @@ int tc_iot_mqtt_client_unsubscribe(tc_iot_mqtt_client* p_mqtt_client,
 int tc_iot_mqtt_client_disconnect(tc_iot_mqtt_client* p_mqtt_client);
 
 /**
+ * @brief tc_iot_shadow_construct 构造设备影子或网关对象
+ *
+ * @param p_shadow_client 设备影子或网关对象
+ * @param p_config 初始化设备影子或网关对象所需参数配置
+ *
+ * @return 结果返回码
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_shadow_construct(tc_iot_shadow_client * p_shadow_client,
+                            tc_iot_shadow_config *p_config);
+
+
+/**
+ * @brief tc_iot_shadow_destroy 关闭 Shadow client 连接，并销毁 Shadow client
+ *
+ * @param p_shadow_client 设备影子或网关对象
+ */
+int tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
+
+
+/**
+ * @brief tc_iot_shadow_isconnected 判断设备影子或网关对象，是否已成功连接服务器
+ *
+ * @param p_shadow_client 设备影子或网关对象
+ *
+ * @return 1 表示已连接，0 表示未连接。
+ */
+char tc_iot_shadow_isconnected(tc_iot_shadow_client *p_shadow_client);
+
+/**
+ * @brief tc_iot_shadow_yield 在当前线程为底层服务，让出一定 CPU 执
+ * 行时间，接收服务推送及响应数据
+ *
+ * @param  p_shadow_client 设备影子或网关对象
+ * @param timeout_ms 等待时延，单位毫秒
+ *
+ * @return 结果返回码
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_shadow_yield(tc_iot_shadow_client *p_shadow_client, int timeout_ms);
+
+/**
  *  @brief tc_iot_server_init
  * 根据设备配置参数，初始化服务。
  *  @param  p_shadow_client 设备服务对象
@@ -463,5 +505,99 @@ int tc_iot_http_mqapi_rpc( char * result, int result_len,
  * @see tc_iot_sys_code_e
  */
 int tc_iot_refresh_auth_token(long timestamp, long nonce, tc_iot_device_info* p_device_info, long expire);
+
+#if defined(ENABLE_SUB_DEVICE)
+
+
+/**
+ * @brief 在当前网关下注册一个子设备。
+ *
+ * @param t 网关子设备列表
+ * @param product_id 子设备 Product Id
+ * @param device_name 子设备 Device Name
+ * @param device_secret 子设备 Device Secret
+ * @param property_count 子设备数据点数量
+ * @param properties 子设备数据点属性
+ * @param p_data 子设备数据变量地址
+ *
+ * @return 注册成功子设备信息地址，为 NULL 则表示注册失败。
+ */
+tc_iot_sub_device_info * tc_iot_gateway_register_sub_device(tc_iot_sub_device_table * t,
+                                                            const char * product_id,
+                                                            const char * device_name,
+                                                            const char * device_secret,
+                                                            int property_total,
+                                                            tc_iot_shadow_property_def * properties,
+                                                            void * p_data);
+
+/**
+ * @brief 对指定范围的子设备，进行上线或下线处理。
+ *
+ * @param p_shadow_client 设备影子或网关对象
+ * @param sub_devices 子设备列表
+ * @param sub_devices_count 子设备数量
+ * @param is_online 是否上线，true 表示上线，false 表示下线
+ *
+ * @return 结果返回码
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_sub_device_onoffline(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online);
+
+
+/**
+ * @brief 标记某个子设备需要上报的数据点。
+ *
+ * @param t 网关子设备列表
+ * @param product_id 子设备 Product Id
+ * @param device_name 子设备 Device Name
+ * @param field_name 子设备数据点名称
+ *
+ * @return 字段属性，为 NULL 则表示标记失败。
+ */
+tc_iot_shadow_property_def * tc_iot_sub_device_info_set_reported_bits(tc_iot_sub_device_table * t,
+                                                                  const char * product_id,
+                                                                  const char * device_name,
+                                                                  const char * field_name);
+
+/**
+ * @brief 标记某个子设备需要确认的数据点。
+ *
+ * @param t 网关子设备列表
+ * @param product_id 子设备 Product Id
+ * @param device_name 子设备 Device Name
+ * @param field_name 子设备数据点名称
+ *
+ * @return 字段属性，为 NULL 则表示标记失败。
+ */
+tc_iot_shadow_property_def * tc_iot_sub_device_info_set_desired_bits(tc_iot_sub_device_table * t,
+                                                                  const char * product_id,
+                                                                  const char * device_name,
+                                                                  const char * field_name);
+
+/**
+ * @brief 对指定范围的子设备，检查 reported_bits 位域设置，上报对应字段的数据。
+ *
+ * @param p_shadow_client 设备影子或网关对象
+ * @param sub_devices 子设备列表
+ * @param sub_devices_count 子设备数量
+ *
+ * @return 结果返回码
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_report_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+
+/**
+ * @brief 对指定范围的子设备，检查 desired_bits 位域设置，确认对应字段的数据，清除服务端 desired 状态。
+ *
+ * @param p_shadow_client 设备影子或网关对象
+ * @param sub_devices 子设备列表
+ * @param sub_devices_count 子设备数量
+ *
+ * @return 结果返回码
+ * @see tc_iot_sys_code_e
+ */
+int tc_iot_confirm_sub_device(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count);
+
+#endif
 
 #endif /* end of include guard */
