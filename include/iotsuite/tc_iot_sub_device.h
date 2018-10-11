@@ -73,7 +73,7 @@ typedef struct _tc_iot_sub_device_event_data {
     const char * value;
 }tc_iot_sub_device_event_data;
 
-int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online);
+int tc_iot_sub_device_onoffline(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online);
 void tc_iot_group_req_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
 void tc_iot_group_get_message_ack_callback(tc_iot_command_ack_status_e ack_status, tc_iot_message_data * md , void * session_context);
 
@@ -91,15 +91,7 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
                                      message_ack_handler callback,
                                     int timeout_ms, void * session_context);
 
-// struct for member data begin
-#define TC_IOT_LOCAL_STRUCT_NAME(name) tc_iot_shadow_local_data_ ## name
-#define TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(name) g_tc_iot_shadow_local_data_ ## name
-// struct for member data end
-
 // for member id begin
-#define TC_IOT_LOCAL_ENUM_NAME(product) tc_iot_shadow_local_enum_ ## product
-#define TC_IOT_LOCAL_MEMBER_ID(product, member) TC_IOT_PROP_ ## product ## _ ## member
-#define TC_IOT_LOCAL_MEMBER_TOTAL(product) TC_IOT_PROP_ ## product ## TOTAL
 #define TC_IOT_DECLARE_LOCAL_MEMBER_DEF(product,member,type) {      \
     #member, TC_IOT_PROP_ ## product ## _ ## member, type,offsetof(tc_iot_shadow_local_data_ ##product, member), \
         TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data_ ##product, member) \

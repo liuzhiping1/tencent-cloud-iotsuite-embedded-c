@@ -193,7 +193,7 @@ void parse_command(tc_iot_mqtt_client_config * config, int argc, char ** argv) {
                                                         sub_dev_device_secret,
                                                         TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
                                                         &g_tc_iot_shadow_property_defs_subdev01[0],
-                                                        &TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(subdev01)[0]);
+                                                        &g_tc_iot_shadow_local_data_subdev01[0]);
                     }
                 }
                 break;

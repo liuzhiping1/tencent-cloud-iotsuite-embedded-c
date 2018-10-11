@@ -12,39 +12,20 @@ typedef struct {
     tc_iot_shadow_number numtest;
     char stringtest[64+1];
     tc_iot_shadow_number Temperature;
-} TC_IOT_LOCAL_STRUCT_NAME(subdev01);
+} tc_iot_shadow_local_data_subdev01;
 
 typedef enum {
-    TC_IOT_LOCAL_MEMBER_ID(subdev01,booltest),
-    TC_IOT_LOCAL_MEMBER_ID(subdev01,enumtest),
-    TC_IOT_LOCAL_MEMBER_ID(subdev01,numtest),
-    TC_IOT_LOCAL_MEMBER_ID(subdev01,stringtest),
-    TC_IOT_LOCAL_MEMBER_ID(subdev01,Temperature),
-    TC_IOT_LOCAL_MEMBER_TOTAL(subdev01),
-} TC_IOT_LOCAL_ENUM_NAME(subdev01);
+    TC_IOT_PROP_subdev01_booltest,
+    TC_IOT_PROP_subdev01_enumtest,
+    TC_IOT_PROP_subdev01_numtest,
+    TC_IOT_PROP_subdev01_stringtest,
+    TC_IOT_PROP_subdev01_Temperature,
+    TC_IOT_PROP_TOTAL_subdev01,
+} tc_iot_shadow_local_enum_subdev01;
 
-extern TC_IOT_LOCAL_STRUCT_NAME(subdev01) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(subdev01)[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
+extern tc_iot_shadow_local_data_subdev01 g_tc_iot_shadow_local_data_subdev01[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
 
-/* typedef struct { */
-/*     tc_iot_shadow_bool booltest; */
-/*     tc_iot_shadow_enum enumtest; */
-/*     tc_iot_shadow_number numtest; */
-/* } TC_IOT_LOCAL_STRUCT_NAME(more); */
-
-/* typedef enum { */
-/*     TC_IOT_LOCAL_MEMBER_ID(more,booltest), */
-/*     TC_IOT_LOCAL_MEMBER_ID(more,enumtest), */
-/*     TC_IOT_LOCAL_MEMBER_ID(more,numtest), */
-/*     TC_IOT_LOCAL_MEMBER_TOTAL(more), */
-/* } TC_IOT_LOCAL_ENUM_NAME(more); */
-
-/* extern TC_IOT_LOCAL_STRUCT_NAME(more) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(more)[TC_IOT_GW_MAX_SUB_DEVICE_COUNT]; */
-
-/* #define TC_IOT_GW_MAX_PRODUCT_COUNT  2 */
-
-
-/* tc_iot_sub_device_info g_tc_iot_sub_devices[TC_IOT_GW_MAX_SUB_DEVICE_COUNT]; */
 tc_iot_sub_device_table g_tc_iot_sub_device_table;
-tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_subdev01[TC_IOT_LOCAL_MEMBER_TOTAL(subdev01)];
+tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_subdev01[TC_IOT_PROP_TOTAL_subdev01];
 
 #endif /* TC_IOT_SUB_DEVICE_LOGIC_H */

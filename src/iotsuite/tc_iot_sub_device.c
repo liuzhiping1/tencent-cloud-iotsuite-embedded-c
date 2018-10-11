@@ -34,6 +34,29 @@ int tc_iot_calc_sub_device_online_sign(char* sign_out, int max_sign_len, const c
 }
 
 /**
+ * @brief tc_iot_onoffline_message_ack_callback shadow_update 上报消息回调
+ *
+ * @param ack_status 回调状态，标识消息是否正常收到响应，还是已经超时等。
+ * @param md 回调状态为 TC_IOT_ACK_SUCCESS 时，用来传递影子数据请求响应消息。
+ * @param session_context 回调 context。
+ */
+void tc_iot_onoffline_message_ack_callback(tc_iot_command_ack_status_e ack_status,
+                                            tc_iot_message_data * md , void * session_context) {
+    tc_iot_mqtt_message* message = NULL;
+
+    if (ack_status != TC_IOT_ACK_SUCCESS) {
+        if (ack_status == TC_IOT_ACK_TIMEOUT) {
+            TC_IOT_LOG_ERROR("request timeout");
+        } else {
+            TC_IOT_LOG_ERROR("request return ack_status=%d", ack_status);
+        }
+        return;
+    }
+
+    message = md->message;
+    TC_IOT_LOG_TRACE("[s->c] %s", (char*)message->payload);
+}
+/**
  * @brief tc_iot_group_req_message_ack_callback shadow_update 上报消息回调
  *
  * @param ack_status 回调状态，标识消息是否正常收到响应，还是已经超时等。
@@ -546,7 +569,7 @@ int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer
     return TC_IOT_SUCCESS;
 }
 
-int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online)
+int tc_iot_sub_device_onoffline(tc_iot_shadow_client * c, tc_iot_sub_device_info * sub_devices, int sub_devices_count, bool is_online)
 {
     int ret = 0;
     int i = 0;
@@ -594,7 +617,7 @@ int tc_iot_sub_device_onoff(tc_iot_shadow_client * c, tc_iot_sub_device_info * s
         ret = tc_iot_sub_device_group_doc_add_data(buffer, buffer_len, TC_IOT_GROUP_DOC_ROOT_DEPTH, "nonce", TC_IOT_SHADOW_TYPE_UINT,  &nonce);
     }
 
-    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_group_req_message_ack_callback, 10000, NULL);
+    ret = tc_iot_sub_device_group_doc_pub(c, buffer, sizeof(buffer), tc_iot_onoffline_message_ack_callback, 10000, NULL);
     if (ret < 0) {
         TC_IOT_LOG_ERROR("ret=%d", ret);
     } else {

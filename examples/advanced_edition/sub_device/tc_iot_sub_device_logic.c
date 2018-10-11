@@ -3,7 +3,7 @@
 #include "tc_iot_sub_device_logic.h"
 #include "tc_iot_export.h"
 
-TC_IOT_LOCAL_STRUCT_NAME(subdev01) TC_IOT_GLOBAL_LOCAL_STRUCT_VAR_NAME(subdev01)[] = {
+tc_iot_shadow_local_data_subdev01 g_tc_iot_shadow_local_data_subdev01[TC_IOT_GW_MAX_SUB_DEVICE_COUNT] = {
     {0,1,2,""},
     {0,1,2,""},
     {0,1,2,""},
