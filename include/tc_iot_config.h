@@ -11,7 +11,7 @@
 #define BUF_MULTIPLE 			(1)
 #endif
 
-#define TC_IOT_SDK_VERSION     "2.8"
+#define TC_IOT_SDK_VERSION     "2.9"
 
 /* mqtt消息接收缓冲区长度 */
 #define TC_IOT_CLIENT_READ_BUF_SIZE (1024*BUF_MULTIPLE)
