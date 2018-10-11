@@ -5,7 +5,7 @@
 本项目提供基于 Linux 平台开发验证的 C SDK，方便用户参考移植到其他 RTOS 系统，让用户可基于不同硬件平台轻松接入。
 
 ### 架构图
-![sdk-architecture](https://user-images.githubusercontent.com/990858/44149475-d66f836e-a0ce-11e8-86cd-9916195e4ca1.png)
+![sdk-architecture](https://user-images.githubusercontent.com/990858/46805530-dc9f8e00-cd97-11e8-888b-1dd1171bfc1a.png)
 
 ### SDK 源码结构及说明：
 ```shell
@@ -251,6 +251,19 @@ SDK 常见错误码定义，参见：[tc_iot_const.h](include/common/tc_iot_cons
 | 序号        | 函数名      | 说明        |
 | ---------- | ---------- | ---------- |
 | 1 | tc_iot_http_mqapi_rpc | 通过 HTTP 接口 调用数据模板数据服务。|
+
+### 8. 网关及子设备接口
+| 序号 | 函数名                                   | 说明                                         |
+| ---- | ----------                               | ----------                                   |
+|    1 | tc_iot_shadow_construct                  | 构造设备影子或网关对象                       |
+|    2 | tc_iot_shadow_yield                      | 服务任务主循环函数，接收服务推送及响应数据。 |
+|    3 | tc_iot_shadow_destroy                    | 设备影子或网关服务析构处理，释放资源。       |
+|    4 | tc_iot_gateway_register_sub_device       | 向网关注册子设备                             |
+|    5 | tc_iot_sub_device_onoffline              | 对指定范围的子设备，进行上线或下线处理。     |
+|    6 | tc_iot_sub_device_info_set_reported_bits | 标记某个子设备需要上报的数据点。             |
+|    7 | tc_iot_sub_device_info_set_desired_bits  | 标记某个子设备需要确认的数据点。             |
+|    8 | tc_iot_report_sub_device                 | 上报子设备数据                               |
+|    9 | tc_iot_confirm_sub_device                | 确认子设备数据                               |
 
 
 
