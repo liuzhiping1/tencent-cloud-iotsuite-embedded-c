@@ -100,14 +100,14 @@
 // 请求 激活设备 Active 接口总长度
 #define TC_IOT_HTTP_ACTIVE_REQUEST_LEN       1024
 // 请求 激活设备 Active 接口响应数据
-#define TC_IOT_HTTP_ACTIVE_RESPONSE_LEN      512  
+#define TC_IOT_HTTP_ACTIVE_RESPONSE_LEN      512
 
 #define TC_IOT_HTTP_OTA_REQUEST_LEN          1024
 
 // 请求 Token 接口表单长度
 #define TC_IOT_HTTP_TOKEN_REQUEST_FORM_LEN  256
 // 请求 Token 接口响应数据
-#define TC_IOT_HTTP_TOKEN_RESPONSE_LEN      512  
+#define TC_IOT_HTTP_TOKEN_RESPONSE_LEN      512
 
 // 请求 Rpc 接口表单长度
 #define TC_IOT_HTTP_MQAPI_REQUEST_FORM_LEN  (1024*BUF_MULTIPLE)

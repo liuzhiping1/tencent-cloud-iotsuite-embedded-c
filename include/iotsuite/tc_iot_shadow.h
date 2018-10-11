@@ -16,6 +16,9 @@ typedef int tc_iot_shadow_enum;
 typedef char tc_iot_shadow_bool;
 typedef char * tc_iot_shadow_string;
 
+#define TC_IOT_SHADOW_MAX_FIELD_LEN   1024
+#define TC_IOT_SHADOW_MAX_NAME_LEN    64
+
 typedef enum _tc_iot_shadow_data_type_e {
     TC_IOT_SHADOW_TYPE_INVALID = 0,
     TC_IOT_SHADOW_TYPE_BOOL = 1,

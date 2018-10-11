@@ -361,7 +361,7 @@ int tc_iot_sub_device_group_doc_pub(tc_iot_shadow_client * c, char * buffer, int
 void tc_iot_device_on_group_message_received(tc_iot_message_data* md) {
     tc_iot_json_tokenizer t, *tokenizer;
     jsmntok_t  json_token[TC_IOT_MAX_JSON_TOKEN_COUNT];
-    char field_buf[TC_IOT_MAX_FIELD_LEN];
+    char field_buf[TC_IOT_MAX_FIELD_LEN+1];
     int field_index = 0;
     int ret = 0;
     tc_iot_mqtt_message* message = md->message;
@@ -439,7 +439,7 @@ int tc_iot_group_doc_parse(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tok
 }
 
 int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer * tokenizer, int product_index) {
-    char buffer[1024]; /* TODO: MACRO */
+    char buffer[TC_IOT_SHADOW_MAX_FIELD_LEN];
     int buffer_len = sizeof(buffer);
     int ret = 0;
     int j = 0;
@@ -467,7 +467,7 @@ int tc_iot_group_control_process(tc_iot_shadow_client * c, tc_iot_json_tokenizer
 
     char product_id[TC_IOT_MAX_PRODUCT_ID_LEN]; /**< 设备 Product Id*/
     char device_name[TC_IOT_MAX_DEVICE_NAME_LEN];  /**< 设备 Device Name*/
-    char data_point_name[65]; // /* TODO: MACRO */
+    char data_point_name[TC_IOT_SHADOW_MAX_NAME_LEN+1];
     tc_iot_sub_device_event_data event_data;
 
 
