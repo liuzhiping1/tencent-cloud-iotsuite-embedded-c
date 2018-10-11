@@ -30,4 +30,7 @@ typedef struct _tc_iot_shadow_local_data {
 
 
 tc_iot_shadow_client * tc_iot_get_shadow_client(void);
+
+tc_iot_sub_device_table g_tc_iot_sub_device_table;
+
 #endif /* end of include guard */

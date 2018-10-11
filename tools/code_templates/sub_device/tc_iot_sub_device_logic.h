@@ -6,6 +6,12 @@
 #define TC_IOT_GW_MAX_SUB_DEVICE_COUNT  5
 
 /* 数据模板本地存储结构定义 local data struct define */
+/*${data_template.declare_subdev_local_data_struct()}*/
+
+/* 数据模板字段 ID 宏定义*/
+/*${data_template.declare_subdev_local_data_field_id()}*/
+
+/* 数据模板本地存储结构定义 local data struct define */
 typedef struct {
     tc_iot_shadow_bool booltest;
     tc_iot_shadow_enum enumtest;
@@ -24,7 +30,6 @@ typedef enum {
 } tc_iot_shadow_local_enum_subdev01;
 
 extern tc_iot_shadow_local_data_subdev01 g_tc_iot_shadow_local_data_subdev01[TC_IOT_GW_MAX_SUB_DEVICE_COUNT];
-
-tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_subdev01[TC_IOT_PROP_TOTAL_subdev01];
+extern tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_subdev01[TC_IOT_PROP_TOTAL_subdev01];
 
 #endif /* TC_IOT_SUB_DEVICE_LOGIC_H */
