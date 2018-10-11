@@ -5,7 +5,11 @@
 
 
 /* buffer 长度的倍数因子, 当属性太多json太长的时候, 一些buffer长度需要增加, 可以设置成 2 , 4 ,8 等数值 */
+#if defined(ENABLE_SUB_DEVICE)
+#define BUF_MULTIPLE 			(8)
+#else
 #define BUF_MULTIPLE 			(1)
+#endif
 
 #define TC_IOT_SDK_VERSION     "2.8"
 
@@ -115,5 +119,13 @@
 
 #define TC_IOT_TLS_ERROR_STR_LEN            64
 #define TC_IOT_TLS_INFO_LEN                 64
+
+#define TC_IOT_API_HOST_FORMAT             "%s.auth-device-iot.tencentcloudapi.com"
+#define TC_IOT_API_TIMEOUT_MS               6000
+#define TC_IOT_API_TOKEN_PATH               "/token"
+#define TC_IOT_API_ACTIVE_PATH              "/secret"
+#define TC_IOT_API_QUERY_PATH               "/query"
+#define TC_IOT_API_LOG_PATH                 "/log"
+#define TC_IOT_API_RPC_PATH                 "/rpc"
 
 #endif /* end of include guard */

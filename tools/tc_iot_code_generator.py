@@ -395,6 +395,29 @@ class iot_struct:
         result += "\n#define TC_IOT_PROPTOTAL {}\n".format(self.field_id)
         return result
 
+    def subdev_property_def_initializer(self):
+        meta_define_str = ""
+        for field in self.fields:
+            meta_define_str += "    TC_IOT_DECLARE_LOCAL_MEMBER_DEF(subdev01, {},    {}),\n".format(field.name, field.type_id)
+        return meta_define_str;
+
+    def declare_subdev_local_data_struct(self, struct_name="tc_iot_shadow_local_data_subdev01"):
+        result = ""
+        result += "typedef struct _" + struct_name + " {\n"
+        for field in self.fields:
+            result += "    {}\n".format(field.get_struct_field_declare())
+        result += "}" + struct_name + ";\n"
+        return result
+
+    def declare_subdev_local_data_field_id(self, subdev_name="subdev01"):
+        result = ""
+        result += "typedef enum _tc_iot_shadow_local_enum_{} {{\n".format(subdev_name)
+        for field in self.fields:
+            result += "    TC_IOT_PROP_{}_{},\n".format(subdev_name, field.name)
+        result += "    TC_IOT_PROP_TOTAL_{},\n".format(subdev_name)
+        result += "}} tc_iot_shadow_local_enum_{};\n".format(subdev_name)
+        return result
+
     def declare_local_data_enum(self):
         result = ""
         for field in self.fields:

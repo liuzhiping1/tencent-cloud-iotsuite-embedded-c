@@ -106,6 +106,7 @@ int main(int argc, char** argv) {
     tc_iot_hal_printf("sub topic: %s\n", sub_topic);
     tc_iot_hal_printf("pub topic: %s\n", pub_topic);
     run_mqtt(&g_client_config);
+    return 0;
 }
 
 void dump_payload(const char * prefix, const char * payload, int payload_len) {

@@ -11,6 +11,7 @@
 
 typedef double tc_iot_shadow_number;
 typedef int tc_iot_shadow_int;
+typedef unsigned int tc_iot_shadow_uint;
 typedef int tc_iot_shadow_enum;
 typedef char tc_iot_shadow_bool;
 typedef char * tc_iot_shadow_string;
@@ -21,7 +22,11 @@ typedef enum _tc_iot_shadow_data_type_e {
     TC_IOT_SHADOW_TYPE_NUMBER = 2,
     TC_IOT_SHADOW_TYPE_ENUM = 3,
     TC_IOT_SHADOW_TYPE_INT = 4,
-    TC_IOT_SHADOW_TYPE_STRING = 5,
+    TC_IOT_SHADOW_TYPE_UINT = 5,
+    TC_IOT_SHADOW_TYPE_STRING = 6,
+
+    TC_IOT_SHADOW_TYPE_OBJECT = 10,
+    TC_IOT_SHADOW_TYPE_ARRAY  = 11,
 } tc_iot_shadow_data_type_e;
 
 typedef struct _tc_iot_shadow_property_def {
@@ -129,7 +134,7 @@ int tc_iot_shadow_construct(tc_iot_shadow_client * p_shadow_client,
  *
  * @param p_shadow_client 设备影子对象
  */
-void tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
+int tc_iot_shadow_destroy(tc_iot_shadow_client *p_shadow_client);
 
 
 /**
@@ -143,7 +148,7 @@ char tc_iot_shadow_isconnected(tc_iot_shadow_client *p_shadow_client);
 
 /**
  * @brief tc_iot_shadow_yield 在当前线程为底层服务，让出一定 CPU 执
- * 行时间
+ * 行时间，接收服务推送及响应数据
  *
  * @param  p_shadow_client 设备影子对象
  * @param timeout_ms 等待时延，单位毫秒
@@ -271,6 +276,8 @@ const char * tc_iot_shadow_get_property_name(tc_iot_shadow_client * p_shadow_cli
 int tc_iot_shadow_get_property_type(tc_iot_shadow_client * p_shadow_client, int property_id);
 int tc_iot_shadow_get_property_offset(tc_iot_shadow_client * p_shadow_client, int property_id);
 int tc_iot_shadow_pending_session_count(tc_iot_shadow_client *c);
+int  _tc_iot_generate_session_id(char * session_id, int session_id_len, tc_iot_mqtt_client* c);
+tc_iot_shadow_session * tc_iot_fetch_session(tc_iot_shadow_client *c);
 
 int tc_iot_report_device_data(tc_iot_shadow_client* p_shadow_client);
 int tc_iot_confirm_devcie_data(tc_iot_shadow_client* p_shadow_client);

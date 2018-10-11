@@ -21,31 +21,31 @@ static void _trace_node(const char *prefix, const char *str, const jsmntok_t *no
 
 const char * tc_iot_json_token_type_str(int type) {
     switch(type) {
-        case JSMN_UNDEFINED:
-            return "undefined";
-        case JSMN_OBJECT:
-            return "object";
-        case JSMN_ARRAY:
-            return "array";
-        case JSMN_STRING:
-            return "string";
-        case JSMN_PRIMITIVE:
-            return "premitive:bool/number/null";
-        default:
-            return "unknown";
+    case JSMN_UNDEFINED:
+        return "undefined";
+    case JSMN_OBJECT:
+        return "object";
+    case JSMN_ARRAY:
+        return "array";
+    case JSMN_STRING:
+        return "string";
+    case JSMN_PRIMITIVE:
+        return "premitive:bool/number/null";
+    default:
+        return "unknown";
     }
 }
 
 void tc_iot_json_print_node(const char *prefix, const char *json, const jsmntok_t *root_node, int node_index) {
     const jsmntok_t * node;
 
-	node = root_node + node_index;
+    node = root_node + node_index;
     TC_IOT_LOG_TRACE("%s id=%d,type=%s,start=%d,end=%d,size(child_count)=%d,parent=%d\t %s",
-    prefix, node_index,
-    tc_iot_json_token_type_str(node->type), 
-    node->start, node->end, node->size, node->parent,
-    tc_iot_log_summary_string( json + node->start, node->end - node->start)
-    );
+                     prefix, node_index,
+                     tc_iot_json_token_type_str(node->type), 
+                     node->start, node->end, node->size, node->parent,
+                     tc_iot_log_summary_string( json + node->start, node->end - node->start)
+        );
 }
 
 int tc_iot_jsoneq_len(const char *json, const jsmntok_t *tok, const char *s,
@@ -161,71 +161,71 @@ int tc_iot_json_unescape(char *dest, int dest_len, const char *src,
             valid_escaped = true;
             if (index < (src_len - 1)) {
                 switch (src[index + 1]) {
-                    case '"':
-                        dest[dest_index++] = '"';
-                        index++;
-                        break;
-                    case '\\':
-                        dest[dest_index++] = '\\';
-                        index++;
-                        break;
-                    case '/':
-                        dest[dest_index++] = '/';
-                        index++;
-                        break;
-                    case 'b':
-                        dest[dest_index++] = '\b';
-                        index++;
-                        break;
-                    case 'f':
-                        dest[dest_index++] = '\f';
-                        index++;
-                        break;
-                    case 'n':
-                        dest[dest_index++] = '\n';
-                        index++;
-                        break;
-                    case 'r':
-                        dest[dest_index++] = '\r';
-                        index++;
-                        break;
-                    case 't':
-                        dest[dest_index++] = '\t';
-                        index++;
-                        break;
-                    case 'u':
-                        if (src_len - index >= 5) {
-                            ret = _unicode_char_to_long(&src[index + 2], 4,
-                                                        &temp_unicode);
-                            if (ret != TC_IOT_SUCCESS) {
-                                valid_escaped = false;
-                                TC_IOT_LOG_WARN("unicode data invalid %s",
-                                         tc_iot_log_summary_string( &src[index], src_len - index));
-                                break;
-                            }
-                            ret = tc_iot_unicode_to_utf8(&dest[dest_index],
-                                                         dest_len - dest_index,
-                                                         temp_unicode);
-                            if (ret <= 0) {
-                                valid_escaped = false;
-                                TC_IOT_LOG_WARN(
-                                    "unicode %d transform to utf8 failed: "
-                                    "ret=%d",
-                                    (int)temp_unicode, ret);
-                                break;
-                            }
-                            dest_index += ret;
-                            index += 5;
-                        } else {
-                                TC_IOT_LOG_WARN("unicode data invalid %s",
-                                         tc_iot_log_summary_string( &src[index], src_len - index));
+                case '"':
+                    dest[dest_index++] = '"';
+                    index++;
+                    break;
+                case '\\':
+                    dest[dest_index++] = '\\';
+                    index++;
+                    break;
+                case '/':
+                    dest[dest_index++] = '/';
+                    index++;
+                    break;
+                case 'b':
+                    dest[dest_index++] = '\b';
+                    index++;
+                    break;
+                case 'f':
+                    dest[dest_index++] = '\f';
+                    index++;
+                    break;
+                case 'n':
+                    dest[dest_index++] = '\n';
+                    index++;
+                    break;
+                case 'r':
+                    dest[dest_index++] = '\r';
+                    index++;
+                    break;
+                case 't':
+                    dest[dest_index++] = '\t';
+                    index++;
+                    break;
+                case 'u':
+                    if (src_len - index >= 5) {
+                        ret = _unicode_char_to_long(&src[index + 2], 4,
+                                                    &temp_unicode);
+                        if (ret != TC_IOT_SUCCESS) {
+                            valid_escaped = false;
+                            TC_IOT_LOG_WARN("unicode data invalid %s",
+                                            tc_iot_log_summary_string( &src[index], src_len - index));
+                            break;
                         }
-                        break;
-                    default:
-                        TC_IOT_LOG_WARN("invalid json escape:%s",
-                                         tc_iot_log_summary_string( &src[index], src_len - index));
-                        valid_escaped = false;
-                        break;
+                        ret = tc_iot_unicode_to_utf8(&dest[dest_index],
+                                                     dest_len - dest_index,
+                                                     temp_unicode);
+                        if (ret <= 0) {
+                            valid_escaped = false;
+                            TC_IOT_LOG_WARN(
+                                "unicode %d transform to utf8 failed: "
+                                "ret=%d",
+                                (int)temp_unicode, ret);
+                            break;
+                        }
+                        dest_index += ret;
+                        index += 5;
+                    } else {
+                        TC_IOT_LOG_WARN("unicode data invalid %s",
+                                        tc_iot_log_summary_string( &src[index], src_len - index));
+                    }
+                    break;
+                default:
+                    TC_IOT_LOG_WARN("invalid json escape:%s",
+                                    tc_iot_log_summary_string( &src[index], src_len - index));
+                    valid_escaped = false;
+                    break;
                 }
             }
 
@@ -256,33 +256,33 @@ int tc_iot_json_escape(char *dest, int dest_len, const char *src, int src_len) {
          src[src_index] && (src_index < src_len) && (dest_index < dest_len);
          src_index++) {
         switch (src[src_index]) {
-            case '\b':
-                dest[dest_index++] = '\\';
-                dest[dest_index++] = 'b';
-                break;
-            case '\f':
-                dest[dest_index++] = '\\';
-                dest[dest_index++] = 'f';
-                break;
-            case '\n':
-                dest[dest_index++] = '\\';
-                dest[dest_index++] = 'n';
-                break;
-            case '\r':
-                dest[dest_index++] = '\\';
-                dest[dest_index++] = 'r';
-                break;
-            case '\t':
-                dest[dest_index++] = '\\';
-                dest[dest_index++] = 't';
-                break;
-            case '"':
-            case '\\':
-            case '/':
-                dest[dest_index++] = '\\';
-            default:
-                dest[dest_index++] = src[src_index];
-                break;
+        case '\b':
+            dest[dest_index++] = '\\';
+            dest[dest_index++] = 'b';
+            break;
+        case '\f':
+            dest[dest_index++] = '\\';
+            dest[dest_index++] = 'f';
+            break;
+        case '\n':
+            dest[dest_index++] = '\\';
+            dest[dest_index++] = 'n';
+            break;
+        case '\r':
+            dest[dest_index++] = '\\';
+            dest[dest_index++] = 'r';
+            break;
+        case '\t':
+            dest[dest_index++] = '\\';
+            dest[dest_index++] = 't';
+            break;
+        case '"':
+        case '\\':
+        case '/':
+            dest[dest_index++] = '\\';
+        default:
+            dest[dest_index++] = src[src_index];
+            break;
         }
     }
 
@@ -341,15 +341,15 @@ int tc_iot_json_find_token(const char *json, const jsmntok_t *root_token,
 
                         if (result && result_len) {
                             val_len = root_token[tok_index].end -
-                                    root_token[tok_index].start;
+                                root_token[tok_index].start;
                             if (val_len > result_len) {
-                                TC_IOT_LOG_ERROR("result buffer not enough val_len=%d, result_len=%d", val_len, result_len)
+                                TC_IOT_LOG_ERROR("result buffer not enough val_len=%d, result_len=%d", val_len, result_len);
                                 return TC_IOT_BUFFER_OVERFLOW;
                             }
 
                             tc_iot_json_unescape(result, result_len,
-                                    json + root_token[tok_index].start,
-                                    val_len);
+                                                 json + root_token[tok_index].start,
+                                                 val_len);
                             if (val_len < result_len) {
                                 result[val_len] = 0;
                             }
@@ -406,347 +406,230 @@ int tc_iot_json_parse(const char * json, int json_len, jsmntok_t * tokens, int t
     return ret;
 }
 
+int tc_iot_json_find_nth_child(const jsmntok_t *root_token, int count, int parent_index, int nth) {
+    int i = 0;
+    int child_count = 0;
 
-int tc_iot_json_writer_open(tc_iot_json_writer * w, char * buffer, int buffer_len) {
+    IF_NULL_RETURN(root_token, TC_IOT_NULL_POINTER);
+    if (parent_index >= count) {
+        TC_IOT_LOG_ERROR("parent_index=%d, count=%d", parent_index, count);
+        return TC_IOT_INVALID_PARAMETER;
+    }
+
+    if (root_token[parent_index].type != JSMN_ARRAY && root_token[parent_index].type != JSMN_OBJECT) {
+        TC_IOT_LOG_ERROR("parent node is not an array or array, type=%d",root_token[parent_index].type);
+        return TC_IOT_INVALID_PARAMETER;
+    }
+
+    if (root_token[parent_index].size <= nth) {
+        TC_IOT_LOG_ERROR("nth=%d large than node size=%d", nth,root_token[parent_index].size);
+        return TC_IOT_INVALID_PARAMETER;
+    }
+
+    for (i = parent_index+1; i < count; i++) {
+        if (root_token[i].parent == parent_index) {
+            child_count++;
+            if (child_count == (nth+1)) {
+                return i;
+            }
+        }
+    }
+
+    TC_IOT_LOG_ERROR("nth=%d child not found, node size=%d.", nth, root_token[parent_index].size);
+    return TC_IOT_INVALID_PARAMETER;
+}
+
+int tc_iot_json_tokenizer_load(tc_iot_json_tokenizer * tokenizer, const char * json_str, int json_str_len, jsmntok_t * tokens, int token_count) {
     int ret = 0;
+    jsmn_parser p;
 
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_NULL_RETURN(buffer, TC_IOT_NULL_POINTER);
-    w->buffer = buffer;
-    w->buffer_len = buffer_len;
-    w->pos = 0;
+    IF_NULL_RETURN(tokenizer, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(json_str, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(tokens, TC_IOT_NULL_POINTER);
 
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "{");
-    w->pos += ret;
+    jsmn_init(&p);
+    ret = jsmn_parse(&p, json_str, json_str_len, tokens, token_count);
+
+    if (ret < 0) {
+        if (JSMN_ERROR_NOMEM == ret) {
+            TC_IOT_LOG_ERROR("Mem not enough: %s", tc_iot_log_summary_string(json_str, json_str_len));
+            return  TC_IOT_JSON_PARSE_TOKEN_NO_MEM;
+        } else {
+            TC_IOT_LOG_ERROR("Failed to parse JSON, ret=%d: %s", ret, tc_iot_log_summary_string(json_str, json_str_len));
+            return TC_IOT_JSON_PARSE_FAILED;
+        }
+    }
+
+    if (ret < 1 || tokens[0].type != JSMN_OBJECT) {
+        TC_IOT_LOG_ERROR("Failed to JSON format: %s", tc_iot_log_summary_string(json_str, json_str_len));
+        return TC_IOT_JSON_PARSE_FAILED;
+    }
+
+    tokenizer->used_count = ret;
+    tokenizer->tokens = tokens;
+    tokenizer->max_count = token_count;
+    tokenizer->json_str = json_str;
+    tokenizer->json_str_len = json_str_len;
+
     return ret;
 }
 
-int tc_iot_json_writer_close(tc_iot_json_writer * w) {
-    int ret = 0;
 
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-    
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "}");
-    w->pos += ret;
-    if (w->pos >= w->buffer_len) {
-        return TC_IOT_BUFFER_OVERFLOW;
-    } else {
-        w->buffer[w->pos] = '\0';
-        return ret;
-    }
-}
+jsmntok_t * tc_iot_json_tokenizer_get_token(tc_iot_json_tokenizer * tokenizer, int index) {
+    jsmntok_t * node = NULL;
 
-int tc_iot_json_writer_object_begin(tc_iot_json_writer * w, const char * name) {
-    int ret = 0;
-
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-    IF_LESS_RETURN(w->pos, 1, TC_IOT_JSON_PARSE_FAILED);
-
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
-    }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":{");
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return ret;
-}
-
-int tc_iot_json_writer_object_end(tc_iot_json_writer * w) {
-    int ret = 0;
-
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-    
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "}");
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        return TC_IOT_BUFFER_OVERFLOW;
-    } else {
-        w->buffer[w->pos] = '\0';
-        return ret;
-    }
-}
-
-char * tc_iot_json_writer_buffer(tc_iot_json_writer * w) {
-    if (!w) {
+    if (!tokenizer) {
+        TC_IOT_LOG_ERROR("tokenizer is null");
         return NULL;
-    } else {
-        return w->buffer;
     }
+    node = tokenizer->tokens+index;
+    return node;
 }
 
-int tc_iot_json_writer_string(tc_iot_json_writer * w, const char * name, const char * value) {
-    int ret = 0;
+const char * tc_iot_json_tokenizer_get_str_start(tc_iot_json_tokenizer * tokenizer, int index) {
+    jsmntok_t * node = tc_iot_json_tokenizer_get_token(tokenizer, index);
 
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-    IF_LESS_RETURN(w->pos, 1, TC_IOT_JSON_PARSE_FAILED);
-
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
+    if (!node) {
+        return NULL;
     }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":\"");
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, value, strlen(value));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return ret;
+    return tokenizer->json_str+node->start;
 }
 
-int tc_iot_json_writer_int(tc_iot_json_writer * w, const char * name, int value) {
-    int ret = 0;
-
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
+int tc_iot_json_tokenizer_get_str_len(tc_iot_json_tokenizer * tokenizer, int index) {
+    jsmntok_t * node = tc_iot_json_tokenizer_get_token(tokenizer, index);
+    if (!node) {
+        return 0;
     }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":%d", value);
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    return ret;
+    return node->end - node->start;
 }
 
-int tc_iot_json_writer_uint(tc_iot_json_writer * w, const char * name, unsigned int value) {
-    int ret = 0;
-
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
+int tc_iot_json_tokenizer_get_child_count(tc_iot_json_tokenizer * tokenizer, int index) {
+    jsmntok_t * node = tc_iot_json_tokenizer_get_token(tokenizer, index);
+    if (!node) {
+        return 0;
     }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":%u", value);
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    return ret;
+    return node->size;
 }
 
-int tc_iot_json_writer_decimal(tc_iot_json_writer * w, const char * name, double value) {
-    int ret = 0;
+int tc_iot_json_tokenizer_nth_child_value(char * value, int value_len, tc_iot_json_tokenizer * tokenizer, int parent_index, int nth) {
+    const char * child_start = NULL;
+    int child_len = 0;
+    int child_index = 0;
 
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
-    }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    child_index = tc_iot_json_tokenizer_nth_child(tokenizer, parent_index, nth);
+    if (child_index <= 0) {
+        TC_IOT_LOG_ERROR("find %dth child failed, parent_index=%d", nth, parent_index);
+        return child_index;
     }
 
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    child_start = tc_iot_json_tokenizer_get_str_start(tokenizer,child_index);
+    child_len = tc_iot_json_tokenizer_get_str_len(tokenizer,child_index);
+    if (child_len >= value_len) {
+        TC_IOT_LOG_ERROR("child value too large, len=%d(max=%d), data:%s", child_len, value_len, tc_iot_log_summary_string(child_start, child_len));
+        return TC_IOT_FAILURE;
     }
 
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":%f", value);
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    return ret;
+    strncpy(value, child_start, child_len);
+    value[child_len] = '\0';
+    return child_index;
 }
 
-int tc_iot_json_writer_bool(tc_iot_json_writer * w, const char * name, bool value) {
-    int ret = 0;
+int tc_iot_json_tokenizer_nth_child(tc_iot_json_tokenizer * tokenizer, int parent_index, int nth) {
+    int i = 0;
+    int child_count = 0;
+    int count = 0;
+    jsmntok_t * root_token = NULL;
 
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
+    IF_NULL_RETURN(tokenizer, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(tokenizer->tokens, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(tokenizer->json_str, TC_IOT_NULL_POINTER);
 
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
-    }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
+    root_token = tokenizer->tokens;
+    count = tokenizer->used_count;
 
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name,strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    if (parent_index >= count) {
+        TC_IOT_LOG_ERROR("parent_index=%d, count=%d", parent_index, count);
+        return TC_IOT_INVALID_PARAMETER;
     }
 
-    if (value) {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":true");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":false");
-    }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    /* if (root_token[parent_index].type != JSMN_ARRAY && root_token[parent_index].type != JSMN_OBJECT) { */
+    /*     TC_IOT_LOG_ERROR("parent node is not an array or array, type=%d",root_token[parent_index].type); */
+    /*     return TC_IOT_INVALID_PARAMETER; */
+    /* } */
+
+    if (root_token[parent_index].size <= nth) {
+        TC_IOT_LOG_ERROR("nth=%d large than node size=%d", nth,root_token[parent_index].size);
+        return TC_IOT_INVALID_PARAMETER;
     }
 
-    return ret;
+    for (i = parent_index+1; i < count; i++) {
+        if (root_token[i].parent == parent_index) {
+            child_count++;
+            if (child_count == (nth+1)) {
+                return i;
+            }
+        }
+    }
+
+    TC_IOT_LOG_ERROR("nth=%d child not found, node size=%d.", nth, root_token[parent_index].size);
+    return TC_IOT_INVALID_PARAMETER;
 }
 
-int tc_iot_json_writer_null(tc_iot_json_writer * w, const char * name) {
-    int ret = 0;
+int tc_iot_json_tokenizer_find_child(tc_iot_json_tokenizer * tokenizer, int parent_index, const char * child, char * result, int result_len) {
+    int i = 0;
+    int count = 0;
+    jsmntok_t * root_token = NULL;
+    int child_len = 0;
+    int val_len = 0;
+    int tok_index = 0;
 
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
+    IF_NULL_RETURN(tokenizer, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(tokenizer->tokens, TC_IOT_NULL_POINTER);
+    IF_NULL_RETURN(tokenizer->json_str, TC_IOT_NULL_POINTER);
 
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
-    }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
+    root_token = tokenizer->tokens;
+    count = tokenizer->used_count;
 
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    if (parent_index >= count) {
+        TC_IOT_LOG_ERROR("parent_index=%d, count=%d", parent_index, count);
+        return TC_IOT_INVALID_PARAMETER;
     }
 
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":null");
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-    return ret;
-}
-
-int tc_iot_json_writer_raw_data(tc_iot_json_writer * w, const char * name, const char * value) {
-    int ret = 0;
-
-    IF_NULL_RETURN(w, TC_IOT_NULL_POINTER);
-    IF_LESS_RETURN(w->buffer_len, w->pos+1, TC_IOT_BUFFER_OVERFLOW);
-    IF_LESS_RETURN(w->pos, 1, TC_IOT_JSON_PARSE_FAILED);
-
-    if (w->buffer[w->pos-1] != '{') {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, ",\"");
-    } else {
-        ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\"");
-    }
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    if (root_token[parent_index].type != JSMN_OBJECT) {
+        TC_IOT_LOG_ERROR("parent node is not an array or array, type=%d",root_token[parent_index].type);
+        return TC_IOT_INVALID_PARAMETER;
     }
 
-    ret = tc_iot_json_escape(&w->buffer[w->pos], w->buffer_len-w->pos, name, strlen(name));
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
+    child_len = strlen(child);
+    for (i = parent_index+1; i < count; i++) {
+        if (root_token[i].parent == parent_index) {
+            if (tc_iot_jsoneq_len(tokenizer->json_str,
+                                  &root_token[i], child,
+                                  child_len) == 0)
+            {
+                tok_index = i+1;
+
+                if (result && result_len) {
+                    val_len = root_token[tok_index].end -
+                        root_token[tok_index].start;
+                    if (val_len >= result_len) {
+                        TC_IOT_LOG_ERROR("result buffer not enough val_len=%d, result_len=%d", val_len, result_len);
+                        return TC_IOT_BUFFER_OVERFLOW;
+                    }
+
+                    tc_iot_json_unescape(result, result_len,
+                                         tokenizer->json_str + root_token[tok_index].start,
+                                         val_len);
+                    if (val_len < result_len) {
+                        result[val_len] = 0;
+                    }
+                }
+                /* TC_IOT_LOG_TRACE("result=%s, index=%d", tc_iot_log_summary_string(result,val_len), tok_index); */
+                return tok_index;
+            }
+        }
     }
 
-    ret = tc_iot_hal_snprintf(&w->buffer[w->pos], w->buffer_len-w->pos, "\":%s", value);
-    w->pos += ret;
-    if (w->pos == w->buffer_len) {
-        TC_IOT_LOG_ERROR("buffer overflow processing:%s", name);
-        return TC_IOT_BUFFER_OVERFLOW;
-    }
-
-    return ret;
+    TC_IOT_LOG_ERROR("child [%s] not found, node size=%d.", child, root_token[parent_index].size);
+    return TC_IOT_INVALID_PARAMETER;
 }

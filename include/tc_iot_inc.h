@@ -20,9 +20,11 @@
 #include "common/tc_iot_ya_buffer.h"
 #include "common/tc_iot_base64.h"
 #include "common/tc_iot_json.h"
+#include "common/tc_iot_json_writer.h"
 #include "common/tc_iot_url.h"
 #include "common/tc_iot_sign_utils.h"
 #include "common/tc_iot_http_utils.h"
+#include "common/tc_iot_http_client.h"
 
 #include "common/tc_iot_certs.h"
 
@@ -31,6 +33,11 @@
 #include "mqtt/tc_iot_client.h"
 #include "iotsuite/tc_iot_shadow.h"
 #include "http/tc_iot_token.h"
+
+#if defined(ENABLE_SUB_DEVICE)
+#include "iotsuite/tc_iot_sub_device.h"
+#endif
+
 #endif
 
 #if defined(ENABLE_COAP)

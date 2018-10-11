@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     use_static_token = strlen(p_client_config->device_info.username) && strlen(p_client_config->device_info.password);
     _refresh_token();
 
-    run_mqtt(&g_client_config);
+    return run_mqtt(&g_client_config);
 }
 
 void _tc_iot_on_mqtt_message_received(tc_iot_message_data* md) {

@@ -4,6 +4,9 @@ aux_source_directory(. IOT_TESTS_SRCS)
 add_executable(unit_test ${IOT_TESTS_SRCS})
 target_link_libraries(unit_test tc_iot_common)
 
+add_executable(st_jsmn st/st_jsmn.c)
+target_link_libraries(st_jsmn tc_iot_common)
+
 # if (ENABLE_COAP)
 #     add_executable(st_udp_client st/st_udp_client.c)
 #     if (ENABLE_DTLS)
