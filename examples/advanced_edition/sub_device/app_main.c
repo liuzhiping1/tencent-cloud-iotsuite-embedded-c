@@ -131,6 +131,22 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    /** TODO: 子设备注册 begin */
+    /*
+    tc_iot_sub_device_register(&g_tc_iot_sub_device_table, 
+            "subdev01_product_id", "subdev01_device_name", "subdev01_device_secret",
+            TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
+            &g_tc_iot_shadow_property_defs_subdev01[0],
+            &g_tc_iot_shadow_local_data_subdev01[0]);
+
+    tc_iot_sub_device_register(&g_tc_iot_sub_device_table, 
+            "subdev02_product_id", "subdev02_device_name", "subdev02_device_secret",
+            TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev02),
+            &g_tc_iot_shadow_property_defs_subdev02[0],
+            &g_tc_iot_shadow_local_data_subdev02[0]);
+    */
+    /** TODO: 子设备注册 end */
+
     ret = tc_iot_sub_device_onoffline(tc_iot_get_shadow_client(),&g_tc_iot_sub_device_table.items[0],g_tc_iot_sub_device_table.used,true);
 
     do_get();

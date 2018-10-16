@@ -323,6 +323,7 @@ class iot_struct:
     def __init__(self, obj):
         self.fields = []
         self.field_id = 0
+        self.subdev_name = ""
         for field_define in obj:
             if TEMPLATE_CONSTANTS.NAME not in field_define:
                 raise ValueError("错误：字段定义中未找到 Name 字段")
@@ -395,13 +396,26 @@ class iot_struct:
         result += "\n#define TC_IOT_PROPTOTAL {}\n".format(self.field_id)
         return result
 
-    def subdev_property_def_initializer(self):
-        meta_define_str = ""
-        for field in self.fields:
-            meta_define_str += "    TC_IOT_DECLARE_LOCAL_MEMBER_DEF(subdev01, {},    {}),\n".format(field.name, field.type_id)
+    def subdev_local_data_declare(self):
+        subdev_name = self.subdev_name
+        meta_define_str = "tc_iot_shadow_local_data_" + subdev_name + " g_tc_iot_shadow_local_data_" + subdev_name + "[TC_IOT_GW_MAX_SUB_DEVICE_COUNT]"
         return meta_define_str;
 
-    def declare_subdev_local_data_struct(self, struct_name="tc_iot_shadow_local_data_subdev01"):
+    def subdev_property_def_declare(self):
+        subdev_name = self.subdev_name
+        meta_define_str = "tc_iot_shadow_property_def g_tc_iot_shadow_property_defs_" + subdev_name + "[TC_IOT_PROP_TOTAL_" + subdev_name + "]"
+        return meta_define_str;
+
+    def subdev_property_def_initializer(self):
+        subdev_name = self.subdev_name
+        meta_define_str = ""
+        for field in self.fields:
+            meta_define_str += "    TC_IOT_DECLARE_LOCAL_MEMBER_DEF({}, {},    {}),\n".format(subdev_name, field.name, field.type_id)
+        return meta_define_str;
+
+    def declare_subdev_local_data_struct(self):
+        subdev_name = self.subdev_name
+        struct_name="tc_iot_shadow_local_data_" + subdev_name
         result = ""
         result += "typedef struct _" + struct_name + " {\n"
         for field in self.fields:
@@ -409,7 +423,8 @@ class iot_struct:
         result += "}" + struct_name + ";\n"
         return result
 
-    def declare_subdev_local_data_field_id(self, subdev_name="subdev01"):
+    def declare_subdev_local_data_field_id(self):
+        subdev_name = self.subdev_name
         result = ""
         result += "typedef enum _tc_iot_shadow_local_enum_{} {{\n".format(subdev_name)
         for field in self.fields:
@@ -560,6 +575,8 @@ def smart_parser_v2(source_str, env_vars, script_open_mark="{%",
 def main():
     parser = argparse.ArgumentParser(description='Iotsuite device data code generator.')
     parser.add_argument('files', nargs='*')
+    parser.add_argument('-s','--subdev_name', dest='subdev_name',metavar='subdev01', required=False,
+                        help='子设备名称，在生成子设备代码时，指定子设备名称，用来生成对应数据结构及符号名称')
     parser.add_argument('-c','--config', dest='config',metavar='iot-abcxyz.json', required=True,
                         help='配置文件本地路径，该文件可从控制台导出到本地： https://console.qcloud.com/iotsuite/product')
 
@@ -600,6 +617,11 @@ def main():
 
     try:
         data_template = iot_struct(device_config.DataTemplate)
+        if not args.subdev_name:
+            data_template.subdev_name = "subdev01"
+        else:
+            data_template.subdev_name = args.subdev_name
+
         for template_files in args.files:
             for template_file in glob.glob(template_files):
                 if os.path.isdir(template_file):

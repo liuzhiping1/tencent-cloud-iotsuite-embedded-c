@@ -21,15 +21,19 @@
 | param_number | 数值       | 可写       | 0,4095               |
 | param_string | 字符串     | 可写       | 64                   |
 
-5. 进入【基本信息】，点击【导出】，导出 iot-xxxxx.json 文档，将 iot-xxxxx.json 文档放到 examples/advanced_edition/sub_dev 目录下，覆盖 iot-product-subdev.json 文件。
+5. 进入【基本信息】，点击【导出】，导出 iot-xxxxx.json 文档，将 iot-xxxxx.json 文档放到 examples/advanced_edition/sub_dev 目录下，覆盖 iot-product-subdev01.json 文件。有多种子设备时，依次命名为 subdev02, subdev03 ... subdevNN.
 
 6. 通过脚本自动生成设备的逻辑框架及业务数据配置代码。
 
 ```shell
 # 进入工具脚本目录
+# ** 单一产品子设备 **
 cd tools
 python tc_iot_code_generator.py -c ../examples/advanced_edition/sub_device/iot-product.json code_templates/sub_device/app_main.c code_templates/sub_device/tc_iot_device_*
 python tc_iot_code_generator.py -c ../examples/advanced_edition/sub_device/iot-product-subdev.json code_templates/sub_device/tc_iot_sub_device_logic.*
+
+# 多类型产品子设备代码生成，可 参见 subdev_generate.sh ，修改配置后，执行 subdev_generate.sh 脚本
+
 ```
 
 执行成功后会看到有如下提示信息：
@@ -52,6 +56,23 @@ python tc_iot_code_generator.py -c ../examples/advanced_edition/sub_device/iot-p
 
 /* 设备名称，可以在产品“设备管理”->“设备名称”位置找到*/
 #define TC_IOT_CONFIG_DEVICE_NAME "device_name"
+```
+
+6. 修改 app_main.c，增加子设备注册逻辑：
+
+```c
+    /** TODO: 子设备注册 begin */
+    /*
+    tc_iot_sub_device_register(&g_tc_iot_sub_device_table, 
+            // 修改为指定的子设备产品 ID、设备名、设备密钥
+            "subdev01_product_id", "subdev01_device_name", "subdev01_device_secret",
+            TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
+            &g_tc_iot_shadow_property_defs_subdev01[0],
+            &g_tc_iot_shadow_local_data_subdev01[0]);
+    //...
+
+    */
+    /** TODO: 子设备注册 end */
 ```
 
 ## 编译程序
@@ -78,16 +99,16 @@ make
 # 如果已经在 tc_iot_device_config.h 中，为TC_IOT_CONFIG_DEVICE_SECRET 指定了
 # 正确的Device Secret，则命令行执行时，可以不用指定 -s secret_abc 参数。
 #
-# -A "product_id,device_name,device_secret" 指定添加的子设备信息
+# -A "product_id,device_name,device_secret" 指定添加的子设备信息（只能注册subdev01）
 # 参数由子设备的 Product Id、Device Name、Device Secret 合并而成，需要添加多个子设备时，可多次用 -A 指定添加。
 #
 # ./advanced_sub_device --trace -p 1883
 
-./advanced_sub_device -d device_xxxx -s secret_abc --trace -p 1883 -A "sub-dev-product-id,sub-dev-device-name,sub-dev-device-secret"
+./advanced_sub_device -d device_xxxx -s secret_abc --trace -p 1883
 
 # 如运行正常未见异常
 # 也可用默认模式来执行，避免日志干扰
-./advanced_sub_device -d device_xxxx -A "sub-dev-product-id,sub-dev-device-name,sub-dev-device-secret"
+./advanced_sub_device -d device_xxxx
 
 ```
 
