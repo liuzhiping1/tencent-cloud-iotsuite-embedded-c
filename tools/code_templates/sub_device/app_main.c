@@ -100,6 +100,21 @@ int main(int argc, char** argv) {
 
     p_client_config = &(g_tc_iot_shadow_config.mqtt_client_config);
 
+    /** TODO: 子设备注册 begin */
+
+    tc_iot_sub_device_register(&g_tc_iot_sub_device_table,
+                               "iot-a0kun8y2", "subdev01_001", "00000000000000000000000000000000",
+                               TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
+                               &g_tc_iot_shadow_property_defs_subdev01[0],
+                               &g_tc_iot_shadow_local_data_subdev01[0]);
+
+    tc_iot_sub_device_register(&g_tc_iot_sub_device_table,
+                               "iot-eaea3s6e", "subdev02_001", "00000000000000000000000000000000",
+                               TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev02),
+                               &g_tc_iot_shadow_property_defs_subdev02[0],
+                               &g_tc_iot_shadow_local_data_subdev02[0]);
+    /** TODO: 子设备注册 end */
+
     /* 解析命令行参数 */
     parse_command(p_client_config, argc, argv);
 
@@ -130,22 +145,6 @@ int main(int argc, char** argv) {
         tc_iot_hal_printf("tc_iot_server_init failed, trouble shooting guide: " "%s#%d\n", TC_IOT_TROUBLE_SHOOTING_URL, ret);
         return 0;
     }
-
-    /** TODO: 子设备注册 begin */
-    /*
-    tc_iot_sub_device_register(&g_tc_iot_sub_device_table, 
-            "subdev01_product_id", "subdev01_device_name", "subdev01_device_secret",
-            TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
-            &g_tc_iot_shadow_property_defs_subdev01[0],
-            &g_tc_iot_shadow_local_data_subdev01[0]);
-
-    tc_iot_sub_device_register(&g_tc_iot_sub_device_table, 
-            "subdev02_product_id", "subdev02_device_name", "subdev02_device_secret",
-            TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev02),
-            &g_tc_iot_shadow_property_defs_subdev02[0],
-            &g_tc_iot_shadow_local_data_subdev02[0]);
-    */
-    /** TODO: 子设备注册 end */
 
     ret = tc_iot_sub_device_onoffline(tc_iot_get_shadow_client(),&g_tc_iot_sub_device_table.items[0],g_tc_iot_sub_device_table.used,true);
 

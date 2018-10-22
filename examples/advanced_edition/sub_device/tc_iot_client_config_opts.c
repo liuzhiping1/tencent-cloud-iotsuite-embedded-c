@@ -102,6 +102,7 @@ void parse_command(tc_iot_mqtt_client_config * config, int argc, char ** argv) {
     int i = 0;
     char buffer[1024];
     char * pos = NULL;
+    tc_iot_sub_device_info * sub_device;
     const char * sub_dev_product_id = NULL;
     const char * sub_dev_device_name = NULL;
     const char * sub_dev_device_secret = NULL;
@@ -182,18 +183,23 @@ void parse_command(tc_iot_mqtt_client_config * config, int argc, char ** argv) {
                         pos++;
                     }
                     if (sub_dev_device_secret) {
-                        tc_iot_hal_printf ("sub_device:product_id=%s,device_name=%s,device_secret=%s\n",
-                                        sub_dev_product_id,
-                                        sub_dev_device_name,
-                                        sub_dev_device_secret
-                            );
-                        tc_iot_sub_device_register(&g_tc_iot_sub_device_table,
-                                                        sub_dev_product_id,
-                                                        sub_dev_device_name,
-                                                        sub_dev_device_secret,
-                                                        TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
-                                                        &g_tc_iot_shadow_property_defs_subdev01[0],
-                                                        &g_tc_iot_shadow_local_data_subdev01[0]);
+                        sub_device = tc_iot_sub_device_info_find(&g_tc_iot_sub_device_table,
+                                                                sub_dev_product_id,
+                                                                sub_dev_device_name);
+                        if (sub_device) {
+                            strncpy(sub_device->device_secret, sub_dev_device_secret, sizeof(sub_device->device_secret));
+                            tc_iot_hal_printf ("sub_device secret set:product_id=%s,device_name=%s,device_secret=%s\n",
+                                               sub_dev_product_id,
+                                               sub_dev_device_name,
+                                               sub_dev_device_secret);
+                        } else {
+                            TC_IOT_LOG_ERROR("ERROR:sub_device not regisitered: product_id=%s,device_name=%s",
+                                               sub_dev_product_id,
+                                               sub_dev_device_name);
+                        }
+
+                    } else {
+                        TC_IOT_LOG_ERROR("Subdevice format invalid.")
                     }
                 }
                 break;

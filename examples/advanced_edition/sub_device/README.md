@@ -12,7 +12,8 @@
 
 3. 进入【基本信息】，点击【导出】，导出 iot-xxxxx.json 文档，将 iot-xxxxx.json 文档放到 examples/advanced_edition/sub_dev 目录下，覆盖 iot-product.json 文件。
 
-4. 创建子设备产品，“数据协议”选择“数据模板”，进入【数据模板】页，为产品定义数据模板，可根据实际应用场景，自行定义所需的数据点及数据类型。例如，本示例默认定义了如下参数；
+4. 创建子设备产品，“数据协议”选择“数据模板”，进入【数据模板】页，为产品定义数据模板，可根据实际应用场景，自行定义所需的数据点及数据类型。
+例如，本示例默认定义了如下参数；
 
 | 名称         | 类型       | 读写       | 取值范围             |
 | ----------   | ---------- | ---------- | ----------           |
@@ -62,16 +63,16 @@ python tc_iot_code_generator.py -c ../examples/advanced_edition/sub_device/iot-p
 
 ```c
     /** TODO: 子设备注册 begin */
-    /*
-    tc_iot_sub_device_register(&g_tc_iot_sub_device_table, 
-            // 修改为指定的子设备产品 ID、设备名、设备密钥
-            "subdev01_product_id", "subdev01_device_name", "subdev01_device_secret",
-            TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
-            &g_tc_iot_shadow_property_defs_subdev01[0],
-            &g_tc_iot_shadow_local_data_subdev01[0]);
-    //...
 
-    */
+    tc_iot_sub_device_register(&g_tc_iot_sub_device_table,
+                               "iot-a0kun8y2",  // 子设备 Product Id
+                               "subdev01_001",  // 子设备 Device Name
+                               "00000000000000000000000000000000", // 子设备 Device Secret
+                               TC_IOT_ARRAY_LENGTH(g_tc_iot_shadow_property_defs_subdev01),
+                               &g_tc_iot_shadow_property_defs_subdev01[0],
+                               &g_tc_iot_shadow_local_data_subdev01[0]);
+
+    // ...
     /** TODO: 子设备注册 end */
 ```
 

@@ -1,10 +1,13 @@
 {
     "app_id": 0,
+    "associated_products": [],
     "auth_type": 2,
-    "create_time": "2018-04-19 18:02:26",
+    "comm_protocol": "wifi",
+    "create_time": "2018-10-22 10:22:19",
+    "data_protocol": "template",
     "data_template": [
         {
-            "desc": "bool type param",
+            "desc": "param_bool",
             "mode": "rw",
             "name": "param_bool",
             "range": [
@@ -14,28 +17,28 @@
             "type": "bool"
         },
         {
-            "desc": "enum type param",
-            "mode": "rw",
-            "name": "param_enum",
-            "range": [
-                "enum_a",
-                "enum_b",
-                "enum_c"
-            ],
-            "type": "enum"
-        },
-        {
-            "desc": "number type param",
+            "desc": "param_number",
             "mode": "rw",
             "name": "param_number",
             "range": [
                 0,
-                4095
+                999999999
             ],
             "type": "number"
         },
         {
-            "desc": "string type param",
+            "desc": "param_enum",
+            "mode": "rw",
+            "name": "param_enum",
+            "range": [
+                "enum_0",
+                "enum_1",
+                "enum_2"
+            ],
+            "type": "enum"
+        },
+        {
+            "desc": "param_string",
             "mode": "rw",
             "name": "param_string",
             "range": [
@@ -46,15 +49,17 @@
         }
     ],
     "deleted": 0,
-    "description": "sdk app use token.",
-    "domain": "mqtt-1doou8fjk.ap-guangzhou.mqtt.tencentcloudmq.com",
+    "description": "SDK \u9a8c\u8bc1\u7f51\u5173\u3002",
+    "device_type": "gateway",
+    "domain": "mqtt-miaowsz6.ap-guangzhou.mqtt.tencentcloudmq.com",
     "message": "",
-    "name": "sdk-demo-app-token",
+    "name": "sdk-gateway",
     "password": "",
-    "product_id": "iot-9fi4gnz8",
-    "product_key": "mqtt-1doou8fjk",
+    "product_id": "iot-rn2brofc",
+    "product_key": "mqtt-miaowsz6",
+    "qps": 1000,
     "region": "gz",
     "standard": 3,
-    "update_time": "2018-04-19 18:04:06",
+    "update_time": "2018-10-22 10:25:11",
     "username": ""
 }

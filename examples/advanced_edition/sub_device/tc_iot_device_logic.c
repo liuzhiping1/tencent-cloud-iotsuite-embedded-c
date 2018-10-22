@@ -25,8 +25,8 @@ tc_iot_sub_device_table g_tc_iot_sub_device_table = {
 /* 设备本地数据类型及地址、回调函数等相关定义 */
 tc_iot_shadow_property_def g_tc_iot_shadow_property_defs[] = {
     { "param_bool", TC_IOT_PROP_param_bool, TC_IOT_SHADOW_TYPE_BOOL, offsetof(tc_iot_shadow_local_data, param_bool),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data,param_bool) },
-    { "param_enum", TC_IOT_PROP_param_enum, TC_IOT_SHADOW_TYPE_ENUM, offsetof(tc_iot_shadow_local_data, param_enum),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data,param_enum) },
     { "param_number", TC_IOT_PROP_param_number, TC_IOT_SHADOW_TYPE_NUMBER, offsetof(tc_iot_shadow_local_data, param_number),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data,param_number) },
+    { "param_enum", TC_IOT_PROP_param_enum, TC_IOT_SHADOW_TYPE_ENUM, offsetof(tc_iot_shadow_local_data, param_enum),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data,param_enum) },
     { "param_string", TC_IOT_PROP_param_string, TC_IOT_SHADOW_TYPE_STRING, offsetof(tc_iot_shadow_local_data, param_string),TC_IOT_MEMBER_SIZE(tc_iot_shadow_local_data,param_string) },
 };
 
@@ -34,24 +34,24 @@ tc_iot_shadow_property_def g_tc_iot_shadow_property_defs[] = {
 /* 设备当前状态数据 */
 tc_iot_shadow_local_data g_tc_iot_device_local_data = {
     false,
-    TC_IOT_PROP_param_enum_enum_a,
     0,
+    TC_IOT_PROP_param_enum_enum_0,
     {'\0'},
 };
 
 /* 设备状态控制数据 */
 static tc_iot_shadow_local_data g_tc_iot_device_desired_data = {
     false,
-    TC_IOT_PROP_param_enum_enum_a,
     0,
+    TC_IOT_PROP_param_enum_enum_0,
     {'\0'},
 };
 
 /* 设备已上报状态数据 */
 tc_iot_shadow_local_data g_tc_iot_device_reported_data = {
     false,
-    TC_IOT_PROP_param_enum_enum_a,
     0,
+    TC_IOT_PROP_param_enum_enum_0,
     {'\0'},
 };
 
@@ -97,8 +97,8 @@ tc_iot_shadow_config g_tc_iot_shadow_config = {
 
 static int _tc_iot_property_change( int property_id, void * data) {
     tc_iot_shadow_bool param_bool;
-    tc_iot_shadow_enum param_enum;
     tc_iot_shadow_number param_number;
+    tc_iot_shadow_enum param_enum;
     tc_iot_shadow_string param_string;
     switch (property_id) {
         case TC_IOT_PROP_param_bool:
@@ -110,18 +110,23 @@ static int _tc_iot_property_change( int property_id, void * data) {
                 TC_IOT_LOG_TRACE("do something for param_bool off");
             }
             break;
+        case TC_IOT_PROP_param_number:
+            param_number = *(tc_iot_shadow_number *)data;
+            g_tc_iot_device_local_data.param_number = param_number;
+            TC_IOT_LOG_TRACE("do something for param_number=%f", param_number);
+            break;
         case TC_IOT_PROP_param_enum:
             param_enum = *(tc_iot_shadow_enum *)data;
             g_tc_iot_device_local_data.param_enum = param_enum;
             switch(param_enum){
-                case TC_IOT_PROP_param_enum_enum_a:
-                    TC_IOT_LOG_TRACE("do something for param_enum = enum_a");
+                case TC_IOT_PROP_param_enum_enum_0:
+                    TC_IOT_LOG_TRACE("do something for param_enum = enum_0");
                     break;
-                case TC_IOT_PROP_param_enum_enum_b:
-                    TC_IOT_LOG_TRACE("do something for param_enum = enum_b");
+                case TC_IOT_PROP_param_enum_enum_1:
+                    TC_IOT_LOG_TRACE("do something for param_enum = enum_1");
                     break;
-                case TC_IOT_PROP_param_enum_enum_c:
-                    TC_IOT_LOG_TRACE("do something for param_enum = enum_c");
+                case TC_IOT_PROP_param_enum_enum_2:
+                    TC_IOT_LOG_TRACE("do something for param_enum = enum_2");
                     break;
                 default:
                     TC_IOT_LOG_WARN("do something for param_enum = unknown");
@@ -129,11 +134,6 @@ static int _tc_iot_property_change( int property_id, void * data) {
                     /* 如果不能正常处理未知状态，则返回 TC_IOT_FAILURE */
                     return TC_IOT_FAILURE;
             }
-            break;
-        case TC_IOT_PROP_param_number:
-            param_number = *(tc_iot_shadow_number *)data;
-            g_tc_iot_device_local_data.param_number = param_number;
-            TC_IOT_LOG_TRACE("do something for param_number=%f", param_number);
             break;
         case TC_IOT_PROP_param_string:
             param_string = (char *)data;
