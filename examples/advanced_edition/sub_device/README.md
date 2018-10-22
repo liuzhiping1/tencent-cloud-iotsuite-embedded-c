@@ -1,7 +1,7 @@
 # 操作指南
 ## 准备工作
 1. 参见 [开发准备](https://github.com/tencentyun/tencent-cloud-iotsuite-embedded-c/blob/master/README.md) ；
-2. 创建网关产品，“数据协议”选择“数据模板”，进入【数据模板】页，为产品定义数据模板，可根据实际应用场景，自行定义所需的数据点及数据类型。例如，本示例默认定义了如下参数；
+2. 创建网关产品，“产品版本”选择“高级版”，“产品类型”选择“网关”，进入【数据模板】页，为产品定义数据模板，可根据实际应用场景，自行定义所需的数据点及数据类型。例如，本示例默认定义了如下参数；
 
 | 名称         | 类型       | 读写       | 取值范围             |
 | ----------   | ---------- | ---------- | ----------           |
@@ -12,7 +12,7 @@
 
 3. 进入【基本信息】，点击【导出】，导出 iot-xxxxx.json 文档，将 iot-xxxxx.json 文档放到 examples/advanced_edition/sub_dev 目录下，覆盖 iot-product.json 文件。
 
-4. 创建子设备产品，“数据协议”选择“数据模板”，进入【数据模板】页，为产品定义数据模板，可根据实际应用场景，自行定义所需的数据点及数据类型。
+4. 创建子设备产品，“产品版本”选择“高级版”，“产品类型”选择“子设备”，进入【数据模板】页，为产品定义数据模板，可根据实际应用场景，自行定义所需的数据点及数据类型。
 例如，本示例默认定义了如下参数；
 
 | 名称         | 类型       | 读写       | 取值范围             |
@@ -22,7 +22,7 @@
 | param_number | 数值       | 可写       | 0,4095               |
 | param_string | 字符串     | 可写       | 64                   |
 
-5. 进入【基本信息】，点击【导出】，导出 iot-xxxxx.json 文档，将 iot-xxxxx.json 文档放到 examples/advanced_edition/sub_dev 目录下，覆盖 iot-product-subdev01.json 文件。有多种子设备时，依次命名为 subdev02, subdev03 ... subdevNN.
+5. 进入【基本信息】，点击【查看关联的网关产品】，在弹出页面中，选择关联第2步创建的网关产品。点击【导出】，导出 iot-xxxxx.json 文档，将 iot-xxxxx.json 文档放到 examples/advanced_edition/sub_dev 目录下，覆盖 iot-product-subdev01.json 文件。有多种子设备时，依次命名为 subdev02, subdev03 ... subdevNN.
 
 6. 通过脚本自动生成设备的逻辑框架及业务数据配置代码。
 
