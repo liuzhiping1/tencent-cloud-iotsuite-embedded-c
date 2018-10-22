@@ -22,7 +22,7 @@
             "name": "param_number",
             "range": [
                 0,
-                999999999
+                4095
             ],
             "type": "number"
         },
@@ -31,9 +31,9 @@
             "mode": "rw",
             "name": "param_enum",
             "range": [
-                "enum_0",
-                "enum_1",
-                "enum_2"
+                "enum_a",
+                "enum_b",
+                "enum_c"
             ],
             "type": "enum"
         },

@@ -35,7 +35,7 @@ tc_iot_shadow_property_def g_tc_iot_shadow_property_defs[] = {
 tc_iot_shadow_local_data g_tc_iot_device_local_data = {
     false,
     0,
-    TC_IOT_PROP_param_enum_enum_0,
+    TC_IOT_PROP_param_enum_enum_a,
     {'\0'},
 };
 
@@ -43,7 +43,7 @@ tc_iot_shadow_local_data g_tc_iot_device_local_data = {
 static tc_iot_shadow_local_data g_tc_iot_device_desired_data = {
     false,
     0,
-    TC_IOT_PROP_param_enum_enum_0,
+    TC_IOT_PROP_param_enum_enum_a,
     {'\0'},
 };
 
@@ -51,7 +51,7 @@ static tc_iot_shadow_local_data g_tc_iot_device_desired_data = {
 tc_iot_shadow_local_data g_tc_iot_device_reported_data = {
     false,
     0,
-    TC_IOT_PROP_param_enum_enum_0,
+    TC_IOT_PROP_param_enum_enum_a,
     {'\0'},
 };
 
@@ -119,14 +119,14 @@ static int _tc_iot_property_change( int property_id, void * data) {
             param_enum = *(tc_iot_shadow_enum *)data;
             g_tc_iot_device_local_data.param_enum = param_enum;
             switch(param_enum){
-                case TC_IOT_PROP_param_enum_enum_0:
-                    TC_IOT_LOG_TRACE("do something for param_enum = enum_0");
+                case TC_IOT_PROP_param_enum_enum_a:
+                    TC_IOT_LOG_TRACE("do something for param_enum = enum_a");
                     break;
-                case TC_IOT_PROP_param_enum_enum_1:
-                    TC_IOT_LOG_TRACE("do something for param_enum = enum_1");
+                case TC_IOT_PROP_param_enum_enum_b:
+                    TC_IOT_LOG_TRACE("do something for param_enum = enum_b");
                     break;
-                case TC_IOT_PROP_param_enum_enum_2:
-                    TC_IOT_LOG_TRACE("do something for param_enum = enum_2");
+                case TC_IOT_PROP_param_enum_enum_c:
+                    TC_IOT_LOG_TRACE("do something for param_enum = enum_c");
                     break;
                 default:
                     TC_IOT_LOG_WARN("do something for param_enum = unknown");
