@@ -170,24 +170,6 @@ typedef enum _tc_iot_device_auth_mode_e {
     TC_IOT_MQTT_AUTH_DYNAMIC_SIGN = 2, // 动态签名
 } tc_iot_device_auth_mode_e;
 
-/**
- * @brief 设备信息
- */
-typedef struct _tc_iot_device_info {
-    char secret[TC_IOT_MAX_SECRET_LEN];  /**< 设备签名秘钥*/
-    char product_id[TC_IOT_MAX_PRODUCT_ID_LEN]; /**< 设备 Product Id*/
-    char device_name[TC_IOT_MAX_DEVICE_NAME_LEN];  /**< 设备 Device Name*/
-    char client_id[TC_IOT_MAX_CLIENT_ID_LEN]; /**< 设备 Client Id*/
-
-    char username[TC_IOT_MAX_USER_NAME_LEN]; /**< 连接 MQ 服务端的 Username*/
-    char password[TC_IOT_MAX_PASSWORD_LEN]; /**< 连接 MQ 服务端的 Password*/
-    long token_expire_time;  /**< username & password 超时时间*/
-
-    char auth_mode;   /** MQ 服务鉴权类型，参见 tc_iot_device_auth_mode_e */
-    const char * region; /** 区域标识 */
-    const char * token_url; /** 动态令牌模式服务端接口地址 */
-} tc_iot_device_info;
-
 
 /**
  * @brief MQTT client 客户端配置
